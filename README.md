@@ -1,7 +1,7 @@
-# BSAD 6153 Project: &lt;your project name&gt;
+# BSAD 6153 Project: Construction Equipment Management System
 
-**Student:** &lt;your name&gt;
-**My decision:** &lt;the decision you make regularly that this project improves&gt;
+**Student:** Antonia Henao  
+**My decision:** Which construction machines need maintenance this week based on their operating hours?  
 **Website:** &lt;your domain, from Week 4&gt;
 
 This repository is one complete AI system, built over eight weeks: a real API, synced on a schedule into a
@@ -96,8 +96,15 @@ every command before you approve it, and keep auto-approve off.
 
 ## Project proposal (Week 1)
 
-<!-- About 300 words: data source and backup API, your decision and workflow (from your baseline log),
-     your first agent idea, and risks. See the Week 1 page. -->
+I want to build a website to help my dad manage his construction equipment business in Manizales, Colombia. He has six machines and six operators. The operators send photos of the hour meters or write down the readings. My dad records those readings in a notebook and then enters them into Excel. He spends about eight hours a week recording and reviewing this information. Sometimes oil changes are missed because it is hard to keep track of the hours for every machine.
+
+In the first version, workers will be able to submit hour-meter readings on the website. My dad will be able to see each machine’s operating hours, who is assigned to it, and which machines are due for maintenance, especially oil changes. The website will help him review maintenance every week. I would measure whether it helps by looking at the time he spends on records and how often oil changes are overdue.
+
+My first idea for an agent is to prepare a weekly list of machines that may need an oil change. It could show the latest reading and the maintenance record behind each reminder. Late or incorrect readings could make a reminder unreliable, so the website should show when each reading was submitted and flag missing information. The system should ask for confirmation before changing records, deleting information, or marking maintenance as complete.
+
+Later, I would like to show which machines are available or busy, when jobs are expected to finish, and how each job is progressing.
+
+**Data source and backup API:** The readings will come from the operators. I’m still evaluating which API to use for the project and which one could serve as a backup.
 
 ## How to run this project
 
