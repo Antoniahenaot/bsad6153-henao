@@ -96,20 +96,38 @@ every command before you approve it, and keep auto-approve off.
 
 ## Project proposal (Week 1)
 
-I want to build a website to help my dad manage his construction equipment business in Manizales, Colombia. He has six machines and six operators. The operators send photos of the hour meters or write down the readings. My dad records those readings in a notebook and then enters them into Excel. He spends about eight hours a week recording and reviewing this information. Sometimes oil changes are missed because it is hard to keep track of the hours for every machine.
+I want to build a website to help my dad manage his construction machinery business in Manizales, Colombia. He has six machines and six operators. The operators send photos of the hour meters or write down the readings. My dad uses a notebook and Excel to track machine hours. He spends about eight hours a week recording and reviewing this information, and sometimes an oil change is missed.
 
-In the first version, workers will be able to submit hour-meter readings on the website. My dad will be able to see each machine’s operating hours, who is assigned to it, and which machines are due for maintenance, especially oil changes. The website will help him review maintenance every week. I would measure whether it helps by looking at the time he spends on records and how often oil changes are overdue.
+The website would let operators submit readings directly. My dad could see each machine’s operating hours, who is assigned to it, and which machines may need maintenance this week. A future agent would prepare a weekly oil change review list. For each machine on the list, it would show the latest reading and the maintenance record behind the reminder. I would measure success by tracking time spent on recordkeeping and how often oil changes are overdue.
 
-My first idea for an agent is to prepare a weekly list of machines that may need an oil change. It could show the latest reading and the maintenance record behind each reminder. Late or incorrect readings could make a reminder unreliable, so the website should show when each reading was submitted and flag missing information. The system should ask for confirmation before changing records, deleting information, or marking maintenance as complete.
+My provisional primary API for the map is [IGAC’s public cadastral service](https://services2.arcgis.com/RVvWzU3lgJISqdke/ArcGIS/rest/services/CATASTRO_PUBLICO_31082026/FeatureServer), using Pasto as a pilot pending instructor approval. The pilot would show how parcel boundaries and existing building footprints could help my dad understand a job site. The business operates in Manizales, and operators would still supply the machine hours. The [Manizales municipal cadastral API](https://sig.manizales.gov.co/wadmzl/rest/services/2022_WEB/2022_consulta_catas_urbano_web_NEW/MapServer) is an unverified backup. Its count requests timed out, so I would test access and confirm reuse terms before relying on it.
 
-Later, I would like to show which machines are available or busy, when jobs are expected to finish, and how each job is progressing.
-
-**Data source and backup API:** The readings will come from the operators. I’m still evaluating which API to use for the project and which one could serve as a backup.
+Late or incorrect readings could lead to unreliable reminders. The website should flag missing readings and ask before changing records, deleting information, or marking maintenance complete. Map records can also be outdated or incomplete. I would confirm the license before public display and keep worker and job information private. Later, I’d like to add machine availability, expected job completion dates, and job progress.
 
 ## How to run this project
 
-<!-- Keep this current: how to run the sync, the website, and the evaluations. -->
+After completing the setup steps above, activate your virtual environment
+and run this from the repository root to fetch the Milestone 1 data:
+
+```sh
+python ingest/fetch.py
+```
+
+The script downloads land and related building records for Pasto, Colombia.
+It saves the original API responses and a summary in a new run folder under
+`data/raw/2026-08-31/`. Git ignores that folder.
+
+To inspect a few records without making an API request, open the local
+[Milestone 1 sample](data/sample/README.md).
 
 ## Credits
 
-<!-- Your data API's required attribution, plus any open-source code or samples you used. -->
+Cadastral data provided by Instituto Geográfico Agustín Codazzi (IGAC),
+August 31, 2026 release. This project uses a subset for Pasto, Colombia,
+from `U_TERRENO` (urban land, layer 7) and `U_CONSTRUCCION` (urban buildings,
+layer 3). [IGAC service directory](https://services2.arcgis.com/RVvWzU3lgJISqdke/ArcGIS/rest/services/CATASTRO_PUBLICO_31082026/FeatureServer)
+
+IGAC's release metadata lists CC BY-SA 4.0, while Colombia's national
+open-data listing shows CC BY 4.0. The terms for these exact layers still
+need confirmation before the sample or a map is shared publicly.
+[Data dictionary and source references](docs/data_dictionary.md#ethical-use-and-attribution)
