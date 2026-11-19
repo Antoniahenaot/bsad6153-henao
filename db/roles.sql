@@ -1,27 +1,23 @@
--- db/roles.sql: who may do what in your database (Week 2, extended in Week 6).
---
--- NEVER PUT A PASSWORD IN THIS FILE. It is committed to GitHub.
--- Create each role here without a password, then set the password separately
--- in the Supabase SQL editor (and nowhere in your repository):
---
---     alter role app_reader with password '...long random password...';
---
--- Then put the role's connection string in .env as APP_DATABASE_URL.
---
--- Week 2: a read-only role for the website, chatbot, and golden-question checker.
--- create role app_reader login;
--- grant usage on schema public to app_reader;
--- grant select on <your data tables> to app_reader;
---
--- Week 3: add sync_runs to the grant above when you create it.
---
--- Week 6: the agent's own role (see the Week 6 page for the exact grants).
--- create role agent_writer login;
--- grant usage on schema public to agent_writer;
--- grant select on <your data tables>, sync_runs, agent_runs, agent_proposals to agent_writer;
--- grant insert on agent_runs, agent_proposals to agent_writer;
--- grant update on agent_runs to agent_writer;
---
--- Week 6: the one write your website may do, which covers only the review columns.
--- grant select on agent_runs, agent_proposals to app_reader;
--- grant update (status, reviewed_at, reviewer_note) on agent_proposals to app_reader;
+-- Fresh setup after db/schema.sql. Both role names must be unused.
+-- Stop and review existing permissions if either role already exists.
+-- Set passwords separately using a private client password prompt.
+-- Keep passwords and connection strings out of this file.
+begin;
+create role igac_loader login noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
+create role app_reader login noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
+grant usage on schema igac to igac_loader, app_reader;
+grant select, insert on igac.cadastral_snapshots, igac.parcels, igac.buildings to igac_loader;
+grant update (release_date, fetched_at, municipality_code, land_layer_url,
+    building_layer_url, geometry_srid, last_updated_at)
+    on igac.cadastral_snapshots to igac_loader;
+grant update (codigo, manzana_codigo, codigo_anterior, department_code,
+    shape_area, shape_length, geometry, last_updated_at)
+    on igac.parcels to igac_loader;
+grant update (codigo, terreno_codigo, construction_type, shape_area,
+    shape_length, geometry, last_updated_at)
+    on igac.buildings to igac_loader;
+grant select on igac.cadastral_snapshots, igac.parcels, igac.buildings to app_reader;
+commit;
+-- Identity inserts require no direct sequence grants.
+-- Our verified PUBLIC grants allow CONNECT and TEMPORARY, but no permanent
+-- schema or table creation. Recheck shared privileges in a fresh database.

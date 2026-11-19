@@ -120,6 +120,77 @@ It saves the original API responses and a summary in a new run folder under
 To inspect a few records without making an API request, open the local
 [Milestone 1 sample](data/sample/README.md).
 
+### Milestone 2 database setup
+
+Complete the Python environment setup above and install `requirements.txt`.
+Copy `.env.example` to `.env` only if `.env` does not already exist. Enter
+connection strings directly in your local editor, with percent-encoded passwords.
+Use Supabase Session pooler connections on port 5432.
+
+| Variable | Database role |
+|---|---|
+| `DATABASE_URL` | Setup role for schema creation and checks |
+| `IGAC_LOADER_DATABASE_URL` | `igac_loader` for the import |
+| `APP_DATABASE_URL` | `app_reader` for read-only application access |
+
+In a fresh database, review and run `db/schema.sql` in the Supabase SQL editor
+as the setup role, followed by `db/roles.sql`. Each script uses a transaction.
+They expect unused schema and role names. If those objects exist, review their
+configuration first. Our current database already has these objects.
+
+Set the role passwords separately through a trusted PostgreSQL client's private
+password prompts. For example, in an authenticated setup session in the optional
+PostgreSQL `psql` client, run:
+
+```text
+\password igac_loader
+\password app_reader
+```
+
+For each custom role's Session pooler URL, replace the database-role portion
+of the pooler username while keeping the project reference, and use that role's
+own password. Save the connection strings in the ignored local `.env` file.
+Review shared `PUBLIC` permissions in a fresh database. Our verified setup
+permits temporary tables but restricts permanent object creation and unrelated
+application data access. The Supabase Data API is disabled for this project.
+
+### Load the saved IGAC run
+
+From the repository root with the virtual environment activated, replace the
+path below with the folder containing `complete.json` and the saved JSON pages:
+
+```sh
+python ingest/load.py --validate-only /absolute/path/to/saved-run
+python ingest/load.py /absolute/path/to/saved-run
+```
+
+The first command checks local files. The second uses `IGAC_LOADER_DATABASE_URL`
+and loads all three tables in one transaction. Repeat the second command with
+the same folder to check idempotency. Our saved run is in the original checkout
+under `data/raw/2026-08-31/20261109T062536Z-9fp_q80e/`. A fresh checkout needs a
+completed saved run, or a new download using the fetch command above. Verify
+counts separately for any new download.
+
+### Check the reader and execute the SQL questions
+
+```sh
+python scripts/check_db.py --app
+```
+
+This checks the `APP_DATABASE_URL` connection. It prints the database username
+and server version, and may print connection details on failure. Keep its output
+private when recording a demonstration.
+
+Open `db/queries.sql` in the Supabase SQL editor and run its five queries inside
+`BEGIN READ ONLY;` and `ROLLBACK;`. The editor uses its selected database role.
+The queries filter our verified saved run. For a different run, adjust the run ID
+and the November 2026 time filter. A separate direct `app_reader` connection was
+verified to read all three tables.
+
+Our load produced 1 snapshot, 500 parcels, and 1,218 buildings. Repeating it
+preserved row IDs and audit timestamps. A complete clean-start test of these
+setup instructions is still pending. [Implementation brief](docs/implementation_brief.md)
+
 ## Credits
 
 Cadastral data provided by Instituto Geográfico Agustín Codazzi (IGAC),
