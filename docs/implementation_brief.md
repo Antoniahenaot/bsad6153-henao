@@ -1,50 +1,57 @@
-# Milestone 2 Implementation Brief
+# Implementation Brief: Should This Use AI?
 
-## Purpose
+*Working draft for review. Assignment 4.3 AI-use permission is unconfirmed.*
 
-The database supports the Pasto mapping pilot for the construction machinery project. It uses a saved download of IGAC's August 31, 2026 release to show how parcel records and building records connect. The SQL questions build on the baseline decisions about whether to use the Pasto data and what the download can show on a map. [Baseline log](baseline_log.md)
+## 1. Your Workflow
 
-## Database design
+My dad manages six machines in Manizales, Colombia. Six operators send handwritten records or hour-meter photos. He organizes them in notebooks and Excel to review maintenance needs. He estimates eight hours weekly for recordkeeping and related work. My baseline log records a 23-minute explanatory call, but complete maintenance-review time remains unmeasured.
 
-Supabase contains three related tables in the dedicated `igac` schema. `cadastral_snapshots` records the source and date of each saved download. `parcels` stores the land records for a snapshot. `buildings` links each building to a parcel in the same snapshot using the parcel code. A parcel can have several building records or have no building match returned.
+The completed Pasto IGAC pilot has one snapshot, 500 parcels, and 1,218 building records. After my approval, Codex verified relationships, repeat loading, audit timestamps, five SQL queries, restricted roles, and fresh-environment local validation. Manizales maintenance collection, dashboard, chatbot, and agent features remain planned. [Technical design](schema.md) · [Baseline](baseline_log.md)
 
-Each table has a generated primary key. Source `OBJECTID` values are unique within each layer and snapshot. Building cadastral codes can repeat, so separate records with the same code are kept. Polygon geometry is stored as ArcGIS JSON, and the snapshot records EPSG:3857. Each table records when a row was first inserted and when it was last updated. [Schema and ER diagram](schema.md)
+## 2. Should This Use AI?
 
-## Ingestion and repeat-load test
+| Option | Benefits | Costs and risks |
+|---|---|---|
+| A. Existing tools | Improve the Excel template and review checklist. | Low cash cost; manual effort and mistakes remain. |
+| B. Data and SQL | Structured records and a dashboard could support traceable maintenance reviews. | Setup, training, accurate readings, and confirmed intervals are needed. |
+| C. LLM chatbot | Could answer questions about records in natural language. | API costs, privacy exposure, and incorrect answers require testing. |
 
-The loader reads the saved JSON pages and checks their counts, source IDs, cadastral codes, municipality, parcel links, and coordinate system before connecting to the database. It recognizes the saved ArcGIS spatial reference of `wkid` 102100 with `latestWkid` 3857 as EPSG:3857.
+I recommend Option B. Add an LLM only if testing demonstrates additional value beyond ordinary reports. Maintenance decisions require human approval.
 
-The loader uses parameterized SQL and writes the snapshot, parcels, and buildings in that order in one transaction. It checks the database counts and relationships before committing. The first load produced **1 snapshot, 500 parcels, and 1,218 buildings**. All 1,218 buildings linked to a parcel in the same snapshot.
+## 3. Value Hypothesis
 
-I verified idempotency by running the loader again with the same files. It reported every row unchanged. There were zero new or updated rows, and the before-and-after comparison showed identical record IDs and identical `first_seen_at` and `last_updated_at` timestamps. [Loader](../ingest/load.py)
+I propose reducing median review time for all six machines by 50% without reducing accuracy. No measured baseline or improvement exists yet. I will time three complete reviews using the current process and three comparable reviews after Option B, recording times in the Milestone 4 usage log. My dad will verify results against meter readings, service records, and confirmed intervals. We will record corrections alongside times. Six observations provide an initial pilot comparison; lasting improvement needs further observation.
 
-## Fresh-environment local validation
+## 4. Early Cost Estimate
 
-A new `.venv` in the Milestone 2 worktree uses Python 3.12.10, and the installed package versions match `requirements.txt`. Running the loader with `--validate-only` in that environment successfully checked the existing saved files as read-only input. It verified 500 parcels and 1,218 buildings, valid required identifiers, unique source `OBJECTID`s within each layer, and valid parcel-building relationships. There were 422 parcels with building matches and 78 without returned building matches. Every page passed the EPSG:3857 check, including the saved `wkid` 102100 with `latestWkid` 3857. This local test made no database connection.
-
-A full clean-start database test remains pending. In a separate empty test environment, that test would apply the schema and role scripts, configure private credentials, verify both role connections and effective permissions, run the first import and an identical repeat import, compare record IDs and audit timestamps, and run the five SQL queries as `app_reader`. The existing Supabase installation has already passed schema and permission verification, both role connection checks, the import and idempotency checks, and execution of the five queries. The remaining test checks whether the documented setup can reproduce those results from an empty database.
-
-## Five SQL questions and verified results
-
-All five queries ran successfully in a read-only Supabase transaction.
-
-| Question | Verified result |
+| Service | Proposed monthly cost and assumption |
 |---|---|
-| Which municipality and release did the November 2026 download cover? | The time filter returned Pasto (`52001`), using the August 31, 2026 release downloaded on November 9, 2026. |
-| How many building records did IGAC return for each parcel? | The query returned all 500 parcels and counted 1,218 building records across them. The highest count for one parcel was 21. |
-| How many parcels had a returned building match? | 422 parcels had at least one returned match, and 78 had none. The vacancy status of those 78 parcels is unknown. |
-| How many building records would the map omit if it kept one row per building code? | The surprising result was that 325 building codes repeated. Keeping one row per code would omit 796 records with distinct source IDs. |
-| Which construction categories can the pilot display for matched Pasto parcels? | The records included 995 marked `CONVENCIONAL` and 223 marked `NO CONVENCIONAL`. |
+| Supabase | $0, Free plan within database and traffic limits. |
+| GitHub Actions | $0, daily sync using standard runners in the public repository. |
+| Render | $0, one Free website within included usage. |
+| GPT-5.4 mini, optional | $3.75 for 1,000 calls, averaging 2,000 input and 500 billed output tokens. |
 
-[SQL queries](../db/queries.sql) · [Data quality findings](data_quality.md)
+Verified November 18, 2026: API rates are $0.75/million input and $4.50/million output tokens, giving $1.50 + $2.25 = $3.75. Option B's listed services total an estimated $0/month; optional AI raises that to $3.75. These are estimates, excluding taxes, setup/training time, paid upgrades, and extra API features. Free-service limits, sleep, or suspension can affect availability.
 
-## Access permissions
+I propose an initial $20 prepaid allowance, auto-reload disabled, and approval before additional purchases. Before paid AI use, an application control must reserve each request's maximum cost, including retries, and block requests exceeding the remaining allowance. It must be implemented and tested. Prepaid billing may not stop charges immediately. At the limit, AI stops; ordinary reports remain available while hosting works. [Supabase](https://supabase.com/pricing) · [Actions](https://docs.github.com/en/actions/concepts/billing-and-usage) · [Render](https://render.com/docs/free) · [API rates](https://developers.openai.com/api/docs/models/gpt-5.4-mini) · [Prepaid limits](https://help.openai.com/en/articles/8264644-setting-up-and-managing-prepaid-api-billing)
 
-The setup role owns the schema. The dedicated `igac_loader` role connects directly to PostgreSQL and can read and insert rows in the three tables and update selected columns. Permission checks confirmed that it cannot delete or truncate rows or create permanent tables. The checks found no access to unrelated application tables, views, sequences, or routines. The shared `PUBLIC TEMPORARY` grant still permits temporary tables. The Supabase Data API is disabled. [Verified access roles](schema.md#access-roles)
+## 5. Risks and Governance
 
-The separate `app_reader` login has `USAGE` on `igac` and `SELECT` on the three tables. Effective permission checks confirmed it cannot insert, update, delete, truncate, or create permanent database objects, and found no access to unrelated application data, application sequences, or routines. A direct connection using `APP_DATABASE_URL` succeeded. In a read-only transaction, it counted 1 snapshot, 500 parcels, and 1,218 buildings. Its connection string is stored in the ignored local `.env` file.
+Incorrect readings could affect my dad, operators, customers, and people near machines. My dad approves maintenance decisions and record changes. I manage pilot access and spending and plan a way for operators to report errors. Private machinery, worker, and customer records stay separate from public IGAC data. Private business records will not be published on the public website. Public visitors must not see private records or receive unverified maintenance advice. AI must never independently change records, mark services complete, or make safety-critical decisions. Unreliable information requires human review. Manizales map coverage and IGAC reuse terms remain unresolved.
 
-## Remaining limits
+## 6. Scorecard Self-Assessment
 
-- **Manizales coverage.** The saved run covers Pasto. Map coverage and current site conditions for Manizales job sites remain unverified. The equipment maintenance decision requires the business's own hour-meter readings, service history, and maintenance intervals.
-- **IGAC reuse terms.** The release metadata and national open-data listing show different license terms. Which terms apply to these layers remains unresolved. [Data dictionary and source references](data_dictionary.md#ethical-use-and-attribution)
+| Factor | Rating | Reason |
+|---|---|---|
+| Real user and workflow | Green | User and workflow identified. |
+| Data access | Yellow | IGAC available; business collection pending. |
+| Data understanding | Yellow | IGAC documented; maintenance rules unconfirmed. |
+| Freshness and monitoring | Red | Sync and monitoring unimplemented. |
+| Grounding | Yellow | Traceable SQL; chatbot unimplemented and untested. |
+| Bounded autonomy | Yellow | Business approval controls planned. |
+| Evaluation | Yellow | Database tested; maintenance accuracy untested. |
+| Measured value and cost | Red | Review times and operating costs unmeasured. |
+| Adoption | Yellow | Regular use untested. |
+| Governance and accountability | Yellow | Roles verified; business controls need testing. |
+
+For Freshness and Monitoring, test scheduled IGAC sync and failure logging; separately develop missing-reading checks for machinery. For Measured Value and Cost, compare logged review times, track expenses, and test the spending stop before paid AI use.
