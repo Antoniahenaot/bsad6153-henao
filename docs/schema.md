@@ -65,3 +65,21 @@ Separate permission checks for `app_reader` found no access to unrelated applica
 - Of the 500 parcels, 422 had at least one returned building match and 78 had none. The vacancy status of those 78 parcels is unknown.
 
 The saved run demonstrates the Pasto pilot. Coverage for Manizales and current site conditions remain unverified. [Data quality report](data_quality.md) · [Verified query definitions](../db/queries.sql)
+
+## Milestone 3: app_reader permission verification
+
+On November 19, 2026, Codex ran the approved tests through a direct PostgreSQL connection and confirmed that the connected role was `app_reader`.
+
+| Table | Successful SELECT row count | INSERT authorization | DELETE authorization |
+|---|---:|---|---|
+| `igac.cadastral_snapshots` | 1 | Denied: SQLSTATE `42501` | Denied: SQLSTATE `42501` |
+| `igac.parcels` | 500 | Denied: SQLSTATE `42501` | Denied: SQLSTATE `42501` |
+| `igac.buildings` | 1,218 | Denied: SQLSTATE `42501` | Denied: SQLSTATE `42501` |
+
+SELECT checks ran in a read-only transaction. INSERT and DELETE authorization checks used `EXPLAIN` without `ANALYZE` in ordinary transactions, with savepoints and rollback protection. These checks did not execute data-changing statements. Each permission test rolled back to its savepoint, and the outer transactions were rolled back safely. No records or database permissions were changed.
+
+The original INSERT diagnostic returned SQLSTATE `428C9` because it supplied generated identity columns. The corrected non-executing test used `OVERRIDING SYSTEM VALUE` and returned SQLSTATE `42501` (insufficient privilege) for all three tables. This confirmed that INSERT was denied by permissions rather than by identity-column handling or a read-only transaction restriction.
+
+The earlier Data API statement records the Milestone 2 setup. The current Supabase Data API setting still needs independent verification in the Dashboard.
+
+The Part C migration, `db/migrations/003_sync_runs.sql`, was successfully applied to Supabase in one transaction. Before committing, Codex verified the new `igac.sync_runs` table, its constraints, defaults, index, and effective permissions. `app_reader` has SELECT-only access to `igac.sync_runs`; `igac_loader` has SELECT, INSERT, and the intended column-limited UPDATE permissions for logging. The existing three tables, source records, and audit timestamps remained unchanged. No test records were inserted during the migration.

@@ -1,0 +1,47 @@
+name: IGAC Pasto sync
+
+'on':
+  schedule:
+    # UTC: 00:23, 06:23, 12:23, and 18:23.
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: igac-pasto-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    # Manual tests also use main; do not run secret-bearing code from other branches.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install pinned dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run offline tests
+        run: python -B -m unittest discover -s tests -v
+
+      - name: Sync Pasto sample
+        env:
+          IGAC_LOADER_DATABASE_URL: ${{ secrets.IGAC_LOADER_DATABASE_URL }}
+        # GitHub supplies GITHUB_EVENT_NAME, GITHUB_RUN_ID, and GITHUB_RUN_ATTEMPT.
+        # sync.py maps schedule to scheduled and workflow_dispatch to manual.
+        # A nonzero Python exit fails this step and job; no automatic rerun.
+        run: python -B ingest/sync.py
