@@ -54,11 +54,59 @@ Match a building's `TERRENO_CODIGO` to the land layer's `CODIGO`. One parcel can
 3. **The department field can be present but empty.** All six inspected land rows had `codigo_municipio = "52001"` and `CODIGO_DEPARTAMENTO = null`. The department field is therefore unsuitable as a required field for this sample.
 4. **Some parcels had no building match.** In the full run, 78 of 500 parcels had no building match returned by the queried layer. Their vacancy status is unknown.
 
+## Lineage and database mapping
+
+The implemented flow is:
+
+`IGAC layer queries → paginated responses → validation → content comparison → igac tables → read-only SQL reports`
+
+The public source is the dated IGAC service linked above, not a machinery-maintenance API. Requests select Pasto and order parcels by `OBJECTID`; the bounded pilot selects the first valid parcels up to the configured target. Buildings are fetched in batches using the selected parcel codes. This selection is not random and does not establish complete coverage.
+
+| Stage | Implemented behavior and lineage evidence |
+|---|---|
+| Source retrieval | [fetch.py](../ingest/fetch.py) requests selected attributes and geometry with pagination, delays, and bounded retries. The standalone fetch saves original responses and a completion summary under ignored `data/raw/`. |
+| Scheduled retrieval | [sync.py](../ingest/sync.py) reuses the fetch helper and validates temporary response pages. Those temporary pages are removed after processing; the operational log is not a permanent raw-response archive. |
+| Validation | [load.py](../ingest/load.py) checks source IDs, cadastral codes, municipality, polygon rings, finite measurements, coordinate reference, counts, and parcel-building relationships. Invalid runs are rejected rather than silently imported. |
+| Mapping | Selected API names map to the database fields below. Codes remain text. Geometry remains ArcGIS JSON; no reprojection or topology repair is performed. Missing department values remain null. |
+| Versioning | The sync compares stored source attributes and geometry, excluding download times and generated IDs. Matching content reuses an existing snapshot. Changed content creates a historical version in one transaction. |
+| Access and outputs | The limited loader writes approved tables; `app_reader` reads them for [quality checks](../db/quality_checks.sql), [golden questions](../evals/golden_questions.csv), and reference evaluation. These are evidence queries, not completed maintenance automation. |
+
+| Source field | Database destination | Meaning or transformation |
+|---|---|---|
+| Land `OBJECTID` | `igac.parcels.object_id` | Source identity within a layer and release; scoped by `snapshot_id`. |
+| Land `CODIGO` | `igac.parcels.codigo` | Text parcel code, unique within a snapshot. |
+| Land `MANZANA_CODIGO` | `igac.parcels.manzana_codigo` | Source block code; nullable. |
+| Land `CODIGO_ANTERIOR` | `igac.parcels.codigo_anterior` | Previous source code; nullable. |
+| Land `CODIGO_DEPARTAMENTO` | `igac.parcels.department_code` | Preserved source value; no imputation. |
+| Building `OBJECTID` | `igac.buildings.object_id` | Source identity within a layer and release; scoped by `snapshot_id`. |
+| Building `CODIGO` | `igac.buildings.codigo` | Repetition is allowed; not the building row's unique key. |
+| Building `TERRENO_CODIGO` | `igac.buildings.terreno_codigo` | Links to parcel `codigo` in the same snapshot. |
+| Building `TIPO_CONSTRUCCION` | `igac.buildings.construction_type` | Nonblank source category. |
+| Both layers' `Shape__Area`, `Shape__Length` | `shape_area`, `shape_length` in the corresponding table | Double-precision measurements; units and ground accuracy are unverified. |
+| Both layers' `geometry` | `geometry` in the corresponding table | ArcGIS polygon JSON stored as `jsonb`. |
+| Both layers' `codigo_municipio` | Validated against `igac.cadastral_snapshots.municipality_code` | The record-level value is checked during ingestion but is not independently retained in each source row. |
+
+Snapshot fields preserve the configured release date, source layer URLs, municipality, fetch time, and coordinate reference. `source_run_id` is the saved folder name for the original import and a deterministic content-version identifier for snapshots created by the sync. It is not the same as an operational sync run ID.
+
+The database generates `snapshot_id`, `parcel_id`, and `building_id`. Foreign keys link source records through their snapshot. Every source table has `first_seen_at` and `last_updated_at`: insertion sets the timestamps, and the loader updates the latter only for changed stored values. Normal sync preserves historical snapshots and does not touch source timestamps when content matches. Binary database reads prevent text-output precision loss during comparison; numeric normalization affects comparison only, not source measurements.
+
+Only selected source attributes are stored. Other published fields, including `GLOBALID`, are outside the current import and content comparison. For database keys, constraints, and roles, see the [schema documentation](schema.md) and [schema SQL](../db/schema.sql).
+
+### Operational lineage through sync_runs
+
+[The run-log migration](../db/migrations/003_sync_runs.sql) defines `igac.sync_runs`. Each execution has a UUID `run_id`, status, start and finish times, trigger type, source release, record counters, and optional GitHub run ID and attempt. Successful runs reference a source `snapshot_id` and record a content fingerprint. Several successful executions can reference the same unchanged snapshot; run count is not snapshot count.
+
+These fields connect an execution to its stored source version and, when available, its GitHub Actions history. Counts describe committed source-row inserts, updates, or unchanged records; failed-run counters do not describe partial downloads. Sanitized error categories support investigation without storing credentials or raw errors. An abrupt interruption can leave a committed `running` entry without a finish time. The [break-it evidence](sync_tests.md) documents that limitation; automatic reconciliation is not implemented.
+
+The log provides operational traceability, not an immutable or complete source archive. The loader can update permitted log fields, old imported snapshots do not carry the sync's content fingerprint directly, and temporary sync responses are not retained. No stronger audit guarantee is claimed.
+
 ## Update behavior
 
 IGAC documents monthly publication for the national open cadastral dataset. The URL used for this run is for the August 31, 2026 snapshot. We have not verified that the same URL updates in place. For a newer release, check the official catalog for its endpoint, confirm that it still covers the pilot city and provides the required fields, and save it separately with its release date and fetch date.
 
 Compare records across releases by parcel code where the code still matches. Flag codes that appear or disappear for review, since a change in code can affect a match. `OBJECTID` identifies rows within a release, and its stability across releases has not been verified.
+
+The implemented workflow checks the same configured release every six hours. Public metadata inspection found no advertised reliable record-level change mechanism, so the sync uses bounded re-fetching and content comparison. Layer edit metadata is checked before and after retrieval, but this does not guarantee an atomic source snapshot. A successful check is not evidence that IGAC published newer cadastral data. Details and monitoring responsibilities are in the [freshness and ownership section](data_quality.md#freshness-monitoring-and-ownership).
 
 Sources: [IGAC release metadata](https://metadatos.icde.gov.co/geonetwork/srv/api/records/0eaaf959-4229-43f9-8e9d-970a9daf43ed?language=all) and [IGAC open geospatial data catalog](https://www.igac.gov.co/datos-abiertos/datos-abiertos-geoespaciales).
 

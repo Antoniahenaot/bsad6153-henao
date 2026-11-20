@@ -80,6 +80,6 @@ SELECT checks ran in a read-only transaction. INSERT and DELETE authorization ch
 
 The original INSERT diagnostic returned SQLSTATE `428C9` because it supplied generated identity columns. The corrected non-executing test used `OVERRIDING SYSTEM VALUE` and returned SQLSTATE `42501` (insufficient privilege) for all three tables. This confirmed that INSERT was denied by permissions rather than by identity-column handling or a read-only transaction restriction.
 
-The earlier Data API statement records the Milestone 2 setup. The current Supabase Data API setting still needs independent verification in the Dashboard.
+On November 20, 2026, Antonia manually verified Supabase project `bsad6153-milestone-2` under Integrations → Data API. `Enable Data API` was OFF, and the Dashboard displayed "No schemas can be queried." This is Antonia's Dashboard verification, not an inference from a successful database connection.
 
 The Part C migration, `db/migrations/003_sync_runs.sql`, was successfully applied to Supabase in one transaction. Before committing, Codex verified the new `igac.sync_runs` table, its constraints, defaults, index, and effective permissions. `app_reader` has SELECT-only access to `igac.sync_runs`; `igac_loader` has SELECT, INSERT, and the intended column-limited UPDATE permissions for logging. The existing three tables, source records, and audit timestamps remained unchanged. No test records were inserted during the migration.
