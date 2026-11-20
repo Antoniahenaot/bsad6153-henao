@@ -22,7 +22,8 @@ from dotenv import load_dotenv
 # Locally, secrets come from .env. On Render they come from the service's environment settings.
 load_dotenv()
 
-# Your Week 3 freshness guarantee: older data than this triggers a visible warning.
+# Maximum age of a successful GitHub sync check before a pipeline warning.
+# This threshold does not establish freshness of the source release.
 FRESHNESS_HOURS = float(os.environ.get("FRESHNESS_HOURS", "24"))
 
 st.set_page_config(page_title="My BSAD 6153 Project", page_icon=":bar_chart:")
@@ -32,44 +33,78 @@ st.set_page_config(page_title="My BSAD 6153 Project", page_icon=":bar_chart:")
 def _query_latest_successful_sync():
     # Streamlit caches only successful results, never errors, so a brief database
     # outage doesn't stay on screen for the whole TTL.
-    with psycopg.connect(os.environ["APP_DATABASE_URL"], connect_timeout=10) as conn:
-        # The value goes in as a parameter (%s), never pasted into the SQL text.
+    with psycopg.connect(
+        os.environ["APP_DATABASE_URL"], connect_timeout=10, autocommit=True
+    ) as conn, conn.transaction():
+        conn.execute("SET TRANSACTION READ ONLY")
+        conn.execute("SET LOCAL statement_timeout = '10s'")
+        if not conn.execute("SELECT current_user = 'app_reader'").fetchone()[0]:
+            raise PermissionError("Expected read-only application role.")
+        # Exclude local saved-payload test replays from live workflow-check freshness.
         row = conn.execute(
-            "select max(finished_at) from sync_runs where status = %s", ("success",)
+            """
+            SELECT r.finished_at, s.release_date
+            FROM igac.sync_runs r
+            JOIN igac.cadastral_snapshots s ON s.snapshot_id = r.snapshot_id
+            WHERE r.status = %s AND r.trigger_type IN ('manual', 'scheduled')
+              AND r.github_run_id IS NOT NULL
+            ORDER BY r.finished_at DESC, r.run_id DESC
+            LIMIT 1
+            """, ("success",)
         ).fetchone()
-    return row[0]
+        if row is None:
+            release = conn.execute(
+                "SELECT release_date FROM igac.cadastral_snapshots "
+                "ORDER BY fetched_at DESC, snapshot_id DESC LIMIT 1"
+            ).fetchone()
+            return None, release[0] if release else None
+        return row
 
 
 def latest_successful_sync():
-    """Return (finished_at, state). state explains what happened, so the page can say it plainly."""
+    """Return ((GitHub check time, source release date), state), without raw errors."""
     if not os.environ.get("APP_DATABASE_URL"):
         return None, "not_configured"
     try:
         return _query_latest_successful_sync(), "ok"
     except psycopg.errors.UndefinedTable:
         return None, "no_sync_runs"
+    except PermissionError:
+        return None, "wrong_role"
     except psycopg.Error:
-        # Never show the raw error to visitors: it can reveal details about your database.
         return None, "db_error"
 
 
 def freshness_banner():
-    finished_at, state = latest_successful_sync()
+    result, state = latest_successful_sync()
     if state == "not_configured":
-        st.info("Database not connected yet. Add APP_DATABASE_URL to your .env file (Week 2).")
+        st.info("Database connection is not configured.")
     elif state == "no_sync_runs":
-        st.info("No sync history yet. You'll create the sync_runs table in Week 3.")
-    elif state == "db_error":
-        st.warning("The data is unavailable right now. Please try again in a minute.")
-    elif finished_at is None:
-        st.warning("The data has never been synced successfully.")
+        st.info("Sync history or source metadata is unavailable.")
+    elif state in ("db_error", "wrong_role"):
+        st.warning("The sync check is unavailable right now. Please try again later.")
     else:
-        hours_old = (datetime.now(timezone.utc) - finished_at).total_seconds() / 3600
-        message = f"Data last updated {finished_at:%Y-%m-%d %H:%M} UTC ({hours_old:.1f} hours ago)."
-        if hours_old > FRESHNESS_HOURS:
-            st.warning("This data may be out of date. " + message)
+        finished_at, release_date = result
+        if finished_at is None:
+            st.warning("No successful GitHub sync check is recorded. Local test replays do not count as live checks.")
         else:
-            st.success(message)
+            finished_at = finished_at.astimezone(timezone.utc)
+            hours_old = (datetime.now(timezone.utc) - finished_at).total_seconds() / 3600
+            message = (
+                f"Last successful GitHub sync check: {finished_at:%Y-%m-%d %H:%M} UTC "
+                f"({hours_old:.1f} hours ago)."
+            )
+            if hours_old > FRESHNESS_HOURS:
+                st.warning("The sync check is overdue. " + message)
+            else:
+                st.success(message)
+        if release_date is None:
+            st.info("Source release date is unavailable; source freshness is unknown.")
+        else:
+            st.info(
+                f"IGAC source release: {release_date:%Y-%m-%d}. "
+                "A successful check does not mean the source was updated or reflects current site conditions."
+            )
 
 
 def signed_in():
