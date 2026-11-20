@@ -58,7 +58,8 @@ every command before you approve it, and keep auto-approve off.
 
 | Secret | On your computer | On Render (website) | In GitHub Actions (sync) |
 |---|---|---|---|
-| `DATABASE_URL` (owner) | `.env` | **never** | Actions secret |
+| `DATABASE_URL` (setup) | `.env` | **never** | **never** |
+| `IGAC_LOADER_DATABASE_URL` (limited loader/sync) | `.env` | no | Actions secret |
 | `APP_DATABASE_URL` (read-only) | `.env` | environment setting | if your checks need it |
 | `AGENT_DATABASE_URL` | `.env` | environment setting | no |
 | LLM key, `APP_PASSWORD` | `.env` | environment setting | no |
