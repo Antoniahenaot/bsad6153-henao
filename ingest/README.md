@@ -6,13 +6,13 @@ Code that moves data from your API into your database. You build it with your AI
 |---|---|---|
 | 1 | `fetch.py` | Calls your API: authentication, pagination, rate limits, retries. Saves raw JSON to `data/raw/`. |
 | 2 | `load.py` | Turns the raw JSON into rows in your tables, using parameterized queries. Running it twice must not create duplicates. |
-| 3 | `sync.py` | Combines fetch and load into one incremental, idempotent sync that GitHub Actions runs on a schedule and records in `sync_runs`. |
+| 3 | `sync.py` | Combines bounded fetching, content comparison, and idempotent loading on a schedule, recording executions in `sync_runs`. |
 
-The loader and proposed sync use the limited `igac_loader` login through
+The loader and implemented sync use the limited `igac_loader` login through
 `IGAC_LOADER_DATABASE_URL`. Schema setup and migrations require the setup role;
 the scheduled job must not run migrations or use owner credentials.
 
-## Milestone 3 sync (live manual test verified; GitHub execution pending)
+## Milestone 3 sync (GitHub execution and 48-hour evidence verified)
 
 After separately reviewing and applying `db/migrations/003_sync_runs.sql` to the
 existing Milestone 2 database, run from the project root:
@@ -93,14 +93,23 @@ no DELETE, TRUNCATE, schema-creation, or sequence grants. Apply it once after
 the Milestone 2 roles exist; do not rerun the fresh-setup schema or role scripts.
 The runtime does not apply migrations.
 
-The GitHub Actions workflow has been created locally in
-`.github/workflows/sync.yml`. It schedules a run every six hours, supports a
-manual trigger, and includes Python 3.12, pinned dependencies, concurrency
-control, and a 35-minute job timeout. It uses only the
-`IGAC_LOADER_DATABASE_URL` Actions secret and runs only on `main`. It has not
-yet run on GitHub. Antonia has configured the `IGAC_LOADER_DATABASE_URL`
-repository secret in GitHub. GitHub execution and successful scheduled runs
-spanning at least 48 hours remain pending.
+The GitHub Actions workflow is on `main` in `.github/workflows/sync.yml`.
+It schedules a run every six hours, supports a manual trigger, and includes
+Python 3.12, pinned dependencies, concurrency control, and a 35-minute job
+timeout. It uses only the `IGAC_LOADER_DATABASE_URL` Actions secret, configured
+by Antonia, and runs only on `main`.
+
+GitHub manual execution passed. Eleven successful scheduled runs were verified
+between November 20 and November 22, 2026. Their actual UTC start times span
+59 hours, 33 minutes, 31 seconds, completing the 48-hour requirement. This is
+evidence for that window, not a promise about future runs or source currency.
+See [run links and exact timestamps](../docs/sync_tests.md#completed-scheduled-evidence-spanning-at-least-48-hours).
+
+For branch selection, environment setup, database setup, quality checks, and
+reference evaluation, follow the [Milestone 3 clean-checkout guide](../README.md#milestone-3-clean-checkout-guide).
+A full clean-start reproduction has **not been performed**. Verified execution
+against the existing database and the earlier fresh Python environment checks
+are separate from a complete empty-database setup test.
 
 ### Verified live manual test
 

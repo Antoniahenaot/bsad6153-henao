@@ -189,8 +189,161 @@ and the November 2026 time filter. A separate direct `app_reader` connection was
 verified to read all three tables.
 
 Our load produced 1 snapshot, 500 parcels, and 1,218 buildings. Repeating it
-preserved row IDs and audit timestamps. A complete clean-start test of these
-setup instructions is still pending. [Implementation brief](docs/implementation_brief.md)
+preserved row IDs and audit timestamps. A full clean-start reproduction has
+**not been performed**. The implemented database and scheduled pipeline passed
+their documented checks; that is distinct from testing this entire setup in
+an empty database. [Implementation brief](docs/implementation_brief.md)
+
+### Milestone 3 clean-checkout guide
+
+**Status:** these instructions have been reviewed against the project files.
+A full clean-start reproduction has **not been performed**. Do not mark the
+PR's clean-start item complete based on this documentation review.
+
+#### Branch and Python environment
+
+Until PR #5 merges, use `milestone-3` to obtain Parts E–H. `main` currently
+contains the merged Parts A–D pipeline. For a new macOS checkout:
+
+```sh
+git clone --branch milestone-3 https://github.com/Antoniahenaot/bsad6153-henao.git bsad6153-henao
+cd bsad6153-henao
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+```
+
+After PR #5 merges, use `main` for the complete milestone instead. Windows
+environment commands appear in the setup table above. These are instructions
+for a new checkout, not a request to switch or overwrite an existing worktree.
+
+Create `.env` from `.env.example` only if `.env` does not already exist.
+Enter authorized connection values privately in your editor. A fresh checkout
+intentionally has no usable credentials, raw downloads, or local evaluation
+evidence. Use the Session pooler format described above.
+
+| Task | Configuration and role |
+|---|---|
+| Quality checks, golden references, and freshness display | `APP_DATABASE_URL` for `app_reader` |
+| Import/sync and run logging | `IGAC_LOADER_DATABASE_URL` for `igac_loader` |
+| Schema, role, and migration setup | Authorized setup role; never the scheduled application connection |
+
+No LLM key or agent connection is needed for Milestone 3 SQL verification.
+
+#### Existing versus completely new database
+
+**Existing course database:** schema, roles, and the migration are already
+applied. Configure the authorized reader connection to run read-only checks.
+Do not rerun fresh-setup SQL, reset passwords, or import data merely because
+you cloned the repository.
+
+**Completely new database:** after review, the setup role runs these files in
+order. Each file uses its own transaction:
+
+1. `db/schema.sql` creates `igac` and the source tables.
+2. `db/roles.sql` creates the limited loader and reader roles.
+3. `db/migrations/003_sync_runs.sql` creates the run log and its permissions.
+
+The scripts expect unused names. Inspect conflicts rather than dropping
+existing objects. Set role passwords through private prompts as described
+above, review shared/default privileges, and verify Enable Data API is OFF in
+the Supabase Dashboard. The scheduled workflow never applies migrations.
+
+Populate a new database only with approval, using the saved-run validation
+and import commands above or a separately approved download. Raw files are
+not included in a clone. Do not publish them while IGAC reuse terms remain
+unresolved. The live sync command is `python ingest/sync.py`; it makes API
+requests and writes source data and operational logs.
+
+#### Read-only quality checks and golden references
+
+With the environment activated and `APP_DATABASE_URL` privately configured,
+the following example executes the existing quality SQL as `app_reader`.
+It needs only the pinned psycopg and python-dotenv packages. Run it only when
+database access is approved; this example has not been executed as part of
+the documentation update.
+
+```sh
+python - <<'PY'
+import logging
+import os
+import sys
+from pathlib import Path
+import psycopg
+from dotenv import dotenv_values
+
+logging.getLogger("dotenv.main").disabled = True
+try:
+    url = os.environ.get("APP_DATABASE_URL") or dotenv_values(
+        Path(".env"), interpolate=False
+    ).get("APP_DATABASE_URL")
+    if not url:
+        raise RuntimeError("Reader connection missing")
+    with psycopg.connect(url, connect_timeout=10, autocommit=True) as connection:
+        with connection.transaction():
+            connection.execute("SET TRANSACTION READ ONLY")
+            connection.execute("SET LOCAL statement_timeout = '10s'")
+            if not connection.execute(
+                "SELECT current_user = 'app_reader'"
+            ).fetchone()[0]:
+                raise RuntimeError("Expected app_reader")
+        with connection.cursor() as cursor:
+            cursor.execute(Path("db/quality_checks.sql").read_text(), prepare=False)
+            while True:
+                if cursor.description:
+                    print([column.name for column in cursor.description])
+                    for row in cursor.fetchall():
+                        print(row)
+                if not cursor.nextset():
+                    break
+except Exception:
+    print("Quality checks failed; connection and error details withheld.")
+    sys.exit(1)
+PY
+```
+
+The SQL file starts a read-only, repeatable-read transaction, sets a statement
+timeout, and ends with `ROLLBACK`. Do not substitute an owner connection.
+Installing the optional `psql` client is not necessary for this example.
+
+Run the golden reference checker with:
+
+```sh
+python evals/check_reference.py --max-rows 10000
+```
+
+The checker validates the CSV and `app_reader`, then executes the twelve
+answerable references in read-only transactions. Four `should_decline`
+questions have empty SQL and are skipped, not tested against an LLM. Empty
+results or SQL errors cause a nonzero exit. Check for a preview-truncation
+notice before describing saved output as complete.
+
+**Original-snapshot dependency:** Q01–Q05 (CSV IDs 1–5) intentionally select
+`source_run_id = '20261109T062536Z-9fp_q80e'`. They answer historical questions
+about that original saved pilot, which the existing course database contains.
+A completely new database populated by a new download may lack that run;
+the reference queries can then return empty results and fail the checker.
+Either obtain approved access to the original completed saved run, preserving
+its metadata and folder identity, or review and adjust the questions and
+reference scope/provenance to an available run. Do not relabel a new download
+as the original or copy old answer counts.
+
+Q10–Q12 use the snapshot linked to the latest successful sync; loading raw
+data without a successful sync entry does not satisfy that scope. Operational
+questions depend on actual history: a new database may have no failed run for
+Q15. Do not invent log entries to make references pass.
+
+The freshness display opens with `streamlit run app/streamlit_app.py` and
+performs read-only database queries. It separates the successful GitHub check
+from the IGAC release. Without a GitHub-backed successful run it correctly
+shows no qualifying check; a local replay is not treated as fresh API access.
+To reproduce scheduling in another repository, configure its limited loader
+repository secret and put the reviewed workflow on its default `main` branch.
+Manual/local tests do not substitute for elapsed scheduled-run evidence.
+
+See [data quality](docs/data_quality.md), [test evidence](docs/sync_tests.md),
+and [lineage](docs/data_dictionary.md) for verified results and limitations.
+Those results do not establish a full new-database reproduction.
 
 ## Credits
 
