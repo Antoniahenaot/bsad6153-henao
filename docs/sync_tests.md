@@ -143,11 +143,28 @@ No unexpected reference-answer differences or SQL errors were found. In particul
 - [x] Complete, credential-free follow-up evidence saved separately with UTC timestamps.
 - [x] Reference answers compared with the baseline; expected changes explained.
 
-## Pending: scheduled evidence spanning at least 48 hours
+## Completed: scheduled evidence spanning at least 48 hours
 
-The three verified successful scheduled starts above span **11 hours, 44 minutes, 25 seconds**. Therefore, the requirement for three successful scheduled runs spanning at least **48 hours remains pending**. This result is based on the listed runs; no future execution or later completion is assumed.
+The earlier November 20 observation above remains historical evidence: its first three successful scheduled starts spanned only **11 hours, 44 minutes, 25 seconds**, so the requirement was pending at that time. The final read-only GitHub history review on November 22, 2026 (America/Chicago), identified the following **11 completed successful scheduled executions** on `main` between November 20 and November 22, 2026. All timestamps are actual GitHub run starts in UTC, not nominal cron slots or database completion times. Only `event=schedule` executions are included; manual and local test runs are excluded.
 
-- [ ] Recheck actual scheduled-run history after sufficient time has elapsed.
-- [ ] Record successful scheduled URLs and timestamps establishing a span of at least 48 hours.
+| Actual start (UTC) | Branch | Event | Status | GitHub Actions evidence |
+|---|---|---|---|---|
+| 2026-11-20 07:43:53 | main | event=schedule | completed / success | [44697115181](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44697115181) |
+| 2026-11-20 13:39:45 | main | event=schedule | completed / success | [44746261611](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44746261611) |
+| 2026-11-20 19:28:18 | main | event=schedule | completed / success | [44802422249](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44802422249) |
+| 2026-11-21 01:41:51 | main | event=schedule | completed / success | [44851693426](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44851693426) |
+| 2026-11-21 07:38:28 | main | event=schedule | completed / success | [44881178507](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44881178507) |
+| 2026-11-21 13:26:28 | main | event=schedule | completed / success | [44908865915](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44908865915) |
+| 2026-11-21 19:15:27 | main | event=schedule | completed / success | [44939946334](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44939946334) |
+| 2026-11-22 01:37:55 | main | event=schedule | completed / success | [44972352408](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44972352408) |
+| 2026-11-22 07:39:33 | main | event=schedule | completed / success | [44999226897](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44999226897) |
+| 2026-11-22 13:24:58 | main | event=schedule | completed / success | [45027363857](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/45027363857) |
+| 2026-11-22 19:17:24 | main | event=schedule | completed / success | [45059899047](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/45059899047) |
+
+The verified interval is **2026-11-22 19:17:24 UTC − 2026-11-20 07:43:53 UTC = 59 hours, 33 minutes, 31 seconds**. At least three successful scheduled executions therefore span more than 48 hours. **The 48-hour scheduled-run requirement is complete.** This is evidence for the listed observation window, not a guarantee of future execution or source-data currency.
+
+- [x] Rechecked actual scheduled-run history after sufficient time elapsed.
+- [x] Recorded successful scheduled URLs, UTC start timestamps, `main`, and `event=schedule`.
+- [x] Verified at least three successful scheduled runs spanning at least 48 hours.
 
 The interrupted test entry remains an abandoned `running` entry as documented above; the follow-up evaluation did not reconcile it or perform cleanup.

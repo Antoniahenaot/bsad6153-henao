@@ -138,7 +138,27 @@ The implemented [workflow](../.github/workflows/sync.yml) requests synchronizati
 
 A live GitHub manual execution was verified successful on **November 20, 2026**, with database completion time **03:33:58.839213 UTC**. [Verified Actions run](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44668476841)
 
-Later controlled tests replayed saved data rather than fetching the API. Their successful log timestamps must not be presented as evidence of a fresh IGAC download. `trigger_type` distinguishes local, manual, and scheduled executions, but it does not independently identify every replay: consult the test evidence as well. The follow-up golden-question evaluation completed successfully after three successful scheduled syncs on November 20, 2026: 12 SQL references passed, none failed, and four decline questions were skipped. The recorded scheduled starts span 11 hours, 44 minutes, 25 seconds; evidence spanning at least 48 hours remains pending. [Test procedures and pending work](sync_tests.md)
+Later controlled tests replayed saved data rather than fetching the API. Their successful log timestamps must not be presented as evidence of a fresh IGAC download. `trigger_type` distinguishes local, manual, and scheduled executions, but it does not independently identify every replay: consult the test evidence as well. The follow-up golden-question evaluation completed successfully after three successful scheduled syncs on November 20, 2026: 12 SQL references passed, none failed, and four decline questions were skipped. At that follow-up, the initial scheduled starts spanned 11 hours, 44 minutes, 25 seconds, so 48-hour evidence was still pending. The later verified window below spans 59 hours, 33 minutes, 31 seconds and completes the requirement. [Test procedures and scheduled evidence](sync_tests.md)
+
+### Completed scheduled-run evidence
+
+The final read-only GitHub history review on November 22, 2026 (America/Chicago), verified these **11 successful scheduled executions** on `main` from November 20 through November 22, 2026. Times are actual UTC run starts. Manual workflow executions and local saved-payload tests are excluded. This evidence supplements, rather than replaces, the historical quality measurements above.
+
+| Actual start (UTC) | Branch | Event | Status | GitHub Actions evidence |
+|---|---|---|---|---|
+| 2026-11-20 07:43:53 | main | event=schedule | completed / success | [44697115181](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44697115181) |
+| 2026-11-20 13:39:45 | main | event=schedule | completed / success | [44746261611](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44746261611) |
+| 2026-11-20 19:28:18 | main | event=schedule | completed / success | [44802422249](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44802422249) |
+| 2026-11-21 01:41:51 | main | event=schedule | completed / success | [44851693426](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44851693426) |
+| 2026-11-21 07:38:28 | main | event=schedule | completed / success | [44881178507](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44881178507) |
+| 2026-11-21 13:26:28 | main | event=schedule | completed / success | [44908865915](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44908865915) |
+| 2026-11-21 19:15:27 | main | event=schedule | completed / success | [44939946334](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44939946334) |
+| 2026-11-22 01:37:55 | main | event=schedule | completed / success | [44972352408](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44972352408) |
+| 2026-11-22 07:39:33 | main | event=schedule | completed / success | [44999226897](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/44999226897) |
+| 2026-11-22 13:24:58 | main | event=schedule | completed / success | [45027363857](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/45027363857) |
+| 2026-11-22 19:17:24 | main | event=schedule | completed / success | [45059899047](https://github.com/Antoniahenaot/bsad6153-henao/actions/runs/45059899047) |
+
+The earliest and latest successful scheduled starts are **2026-11-20 07:43:53 UTC** and **2026-11-22 19:17:24 UTC**. Their difference is **59 hours, 33 minutes, 31 seconds**. **The requirement for at least three successful scheduled runs spanning at least 48 hours is complete.** These successes demonstrate the scheduled pipeline's execution during this window; they do not establish that IGAC updated the August 31 source release or that the data reflects current site conditions.
 
 ### Implemented monitoring and known gaps
 
@@ -163,4 +183,4 @@ On November 20, 2026, Antonia manually verified Supabase project `bsad6153-miles
 
 **Recommended operating procedure, not verified ongoing practice:** Antonia should review scheduled outcomes and source age, investigate failures or unexpectedly old successful checks, and compare material count or coverage changes before accepting them for operational use. Preserve the previous verified snapshot when an import fails. Do not impute source values, remove repeated codes, or reconcile abandoned log entries without review. Confirm a suitable freshness threshold with the intended user; no tested freshness guarantee or response-time commitment is established here.
 
-**Planned improvements:** complete scheduled-run evidence spanning at least 48 hours; define and test abandoned-run detection, alerting, and reconciliation; and validate new-release discovery before changing source endpoints. These remain pending controls; the follow-up reference evaluation and freshness-display implementation and testing are complete. Missing department codes, limited coverage, geometry validity, measurement meaning, and reuse terms remain the limitations described above.
+**Planned improvements:** define and test abandoned-run detection, alerting, and reconciliation; and validate new-release discovery before changing source endpoints. These remain pending controls. The 48-hour scheduled-run evidence, follow-up reference evaluation, and freshness-display implementation and testing are complete. Missing department codes, limited coverage, geometry validity, measurement meaning, and reuse terms remain the limitations described above.
