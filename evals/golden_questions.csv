@@ -1,0 +1,69 @@
+id,question,category,reference_sql,correct_behavior,source
+1,Which municipality and source release does the original pilot cover?,lookup,"select municipality_code, release_date, fetched_at from igac.cadastral_snapshots where source_run_id = '20261109T062536Z-9fp_q80e';","Existing baseline-derived SQL question 1, linked to baseline observation 2. Report municipality, source release date, and download time separately; label download time UTC. If the original run is absent, say its coverage cannot be retrieved. Do not infer Manizales coverage.",baseline
+2,How many building records were returned for each parcel in the original pilot?,aggregate,"with selected as (select snapshot_id from igac.cadastral_snapshots where source_run_id = '20261109T062536Z-9fp_q80e')
+select p.codigo as parcel_code, count(b.building_id) as returned_building_count
+from selected s join igac.parcels p on p.snapshot_id = s.snapshot_id
+left join igac.buildings b on b.snapshot_id = p.snapshot_id and b.terreno_codigo = p.codigo
+group by p.codigo order by returned_building_count desc, parcel_code;","Existing baseline-derived SQL question 2, linked to baseline observation 3. Include parcels with no returned buildings. Counts describe building records, not occupancy. Empty results mean no parcel results are available for this scope.",baseline
+3,"How many original pilot parcels have building matches, and how many do not?",aggregate,"with selected as (select snapshot_id from igac.cadastral_snapshots where source_run_id = '20261109T062536Z-9fp_q80e'), matches as (
+select p.snapshot_id, p.parcel_id, exists (select 1 from igac.buildings b
+where b.snapshot_id = p.snapshot_id and b.terreno_codigo = p.codigo) as matched
+from igac.parcels p join selected s on s.snapshot_id = p.snapshot_id)
+select s.snapshot_id, count(m.parcel_id) filter (where m.matched) as matched_parcels,
+count(m.parcel_id) filter (where not m.matched) as parcels_without_returned_matches
+from selected s left join matches m on m.snapshot_id = s.snapshot_id group by s.snapshot_id;","Existing baseline-derived SQL question 3, linked to baseline observation 3. Report both counts. A missing match does not establish vacancy. No result means the original snapshot is absent.",baseline
+4,How many original pilot building records would be lost by keeping one row per building code?,aggregate,"with selected as (select snapshot_id from igac.cadastral_snapshots where source_run_id = '20261109T062536Z-9fp_q80e'), per_code as (
+select b.snapshot_id, b.codigo, count(*) as records from igac.buildings b
+join selected s on s.snapshot_id = b.snapshot_id group by b.snapshot_id, b.codigo)
+select s.snapshot_id, coalesce(sum(p.records - 1), 0) as records_omitted
+from selected s left join per_code p on p.snapshot_id = s.snapshot_id group by s.snapshot_id;","Existing baseline-derived SQL question 4, linked to baseline observation 3. Calculate omissions from current rows in the original snapshot; repeated codes alone do not justify deduplication. Preserve distinct source OBJECTIDs. No result means the original snapshot is absent.",baseline
+5,"Which construction categories appear in the original pilot, and how many records belong to each?",aggregate,"with selected as (select snapshot_id from igac.cadastral_snapshots where source_run_id = '20261109T062536Z-9fp_q80e')
+select b.construction_type, count(*) as building_records from igac.buildings b
+join selected s on s.snapshot_id = b.snapshot_id
+group by b.construction_type order by building_records desc, b.construction_type;","Existing baseline-derived SQL question 5, linked to baseline observation 3. Report observed categories and counts, without inferring site safety or machinery requirements. Empty results mean no categories are available for the selected scope.",baseline
+6,Which of my dad’s machines need maintenance this week?,should_decline,,"Baseline main decision. Decline machine-specific maintenance conclusions: the current IGAC and sync tables contain no machine readings, service history, or confirmed maintenance intervals. Request those verified business records and human review.",baseline
+7,What is the latest hour-meter reading for each machine?,should_decline,,"Baseline observation 1, wished-for information. Explain that machine readings are not in the current database. Do not invent readings or substitute cadastral or sync timestamps.",baseline
+8,What oil-change interval should I use for the CAT 312E?,should_decline,,"Baseline observation 6. Do not invent a service interval; the current database has no verified maintenance-interval information. Request applicable manufacturer guidance and confirmed service records, with human approval.",baseline
+9,When did this pilot last complete a successful sync?,lookup,"select r.finished_at as last_successful_check, r.trigger_type, s.release_date
+from igac.sync_runs r join igac.cadastral_snapshots s on s.snapshot_id = r.snapshot_id
+where r.status = 'success' order by r.finished_at desc, r.run_id desc limit 1;","New operational question from Parts B–D. Report the last successful check in UTC and distinguish it from the source release. If no row is returned, say no successful sync with a snapshot is recorded.",other
+10,How many parcels and buildings belong to the snapshot referenced by the latest successful sync?,aggregate,"with selected as (select snapshot_id from igac.sync_runs where status = 'success' and snapshot_id is not null order by finished_at desc, run_id desc limit 1)
+select s.snapshot_id, (select count(*) from igac.parcels p where p.snapshot_id = s.snapshot_id) as parcels,
+(select count(*) from igac.buildings b where b.snapshot_id = s.snapshot_id) as buildings from selected s;","New operational question from snapshot reuse. Count only the snapshot referenced by the latest successful run, not the highest snapshot ID or all history. Count each layer separately to avoid join multiplication. No result means no successful snapshot is available.",other
+11,Does either source layer have missing area or perimeter values?,compare,"with selected as (select snapshot_id from igac.sync_runs where status = 'success' and snapshot_id is not null order by finished_at desc, run_id desc limit 1), records as (
+select 'parcels' as layer, p.snapshot_id, p.shape_area, p.shape_length from igac.parcels p
+join selected s on s.snapshot_id = p.snapshot_id union all
+select 'buildings', b.snapshot_id, b.shape_area, b.shape_length from igac.buildings b
+join selected s on s.snapshot_id = b.snapshot_id), totals as (
+select layer, snapshot_id, count(*) as records,
+count(*) filter (where shape_area is null) as missing_area,
+count(*) filter (where shape_length is null) as missing_perimeter from records group by layer, snapshot_id)
+select s.snapshot_id, l.layer, coalesce(t.records, 0) as denominator,
+coalesce(t.missing_area, 0) as missing_area, coalesce(t.missing_perimeter, 0) as missing_perimeter,
+round(100.0 * t.missing_area / nullif(t.records, 0), 2) as missing_area_percent,
+round(100.0 * t.missing_perimeter / nullif(t.records, 0), 2) as missing_perimeter_percent
+from selected s cross join (values ('parcels'), ('buildings')) l(layer)
+left join totals t on t.snapshot_id = s.snapshot_id and t.layer = l.layer order by l.layer;","New comparison from Part E. Use the latest successfully synced snapshot and report both counts, percentages, and denominators. Null rates do not prove geometry accuracy. Null percentages with an empty layer mean no denominator; no result means no successful snapshot.",other
+12,How do returned-building match rates compare between blocks 52001010300000150 and 52001010400000544 in the latest successfully synced Pasto snapshot?,compare,"with selected as (select snapshot_id from igac.sync_runs where status = 'success' and snapshot_id is not null order by finished_at desc, run_id desc limit 1), blocks as (
+select p.snapshot_id, p.manzana_codigo, count(*) as parcels,
+count(*) filter (where not exists (select 1 from igac.buildings b
+where b.snapshot_id = p.snapshot_id and b.terreno_codigo = p.codigo)) as unmatched
+from igac.parcels p join selected s on s.snapshot_id = p.snapshot_id
+join igac.cadastral_snapshots c on c.snapshot_id = p.snapshot_id and c.municipality_code = '52001'
+where p.manzana_codigo in ('52001010300000150', '52001010400000544')
+group by p.snapshot_id, p.manzana_codigo)
+select snapshot_id, manzana_codigo, parcels, unmatched,
+round(100.0 * unmatched / nullif(parcels, 0), 2) as unmatched_percent from blocks order by manzana_codigo;","New comparison from the measured Part E block examples. Identify each block and denominator; compare returned matches without inferring vacancy, development, discrimination, or accuracy. If a requested block is absent, explicitly say its rate cannot be calculated. Empty results do not establish zero unmatched parcels.",other
+13,"How many successful and failed syncs were recorded on each UTC day during the last seven calendar days, including today?",trend,"select (started_at at time zone 'UTC')::date as utc_day, status, trigger_type, count(*) as runs
+from igac.sync_runs where started_at >= ((date_trunc('day', current_timestamp at time zone 'UTC') at time zone 'UTC') - interval '6 days') and started_at <= current_timestamp and status in ('success', 'failed')
+group by (started_at at time zone 'UTC')::date, status, trigger_type order by utc_day, status, trigger_type;","New operational trend from sync_runs. Use today plus the preceding six UTC dates, through query time. Report status and trigger separately; today is partial. Missing dates mean no matching recorded runs, not automatic failures. This is sync activity, not a maintenance or cadastral-change trend.",other
+14,"How did successful sync duration vary by UTC day during the last seven calendar days, including today?",trend,"select (started_at at time zone 'UTC')::date as utc_day, trigger_type, count(*) as completed_runs,
+round(min(extract(epoch from (finished_at - started_at))), 2) as minimum_seconds,
+round(avg(extract(epoch from (finished_at - started_at))), 2) as average_seconds,
+round(max(extract(epoch from (finished_at - started_at))), 2) as maximum_seconds
+from igac.sync_runs where started_at >= ((date_trunc('day', current_timestamp at time zone 'UTC') at time zone 'UTC') - interval '6 days') and started_at <= current_timestamp and status = 'success'
+and finished_at is not null and finished_at >= started_at and finished_at <= current_timestamp
+group by (started_at at time zone 'UTC')::date, trigger_type order by utc_day, trigger_type;","New operational trend from run timestamps. Describe observed completed-success durations in seconds, sample counts, and trigger types; today is partial. Do not claim improvement or source updates from sparse observations. If empty, say no eligible successful runs exist in the window.",other
+15,What safe error category was recorded for the most recent failed sync?,lookup,"select started_at, finished_at, trigger_type, error_category from igac.sync_runs
+where status = 'failed' order by started_at desc, run_id desc limit 1;","New operational lookup from failure logging. Report timestamps in UTC, trigger, and only the stored safe category. Do not invent a detailed cause or expose raw errors. If empty, say no failed run is recorded.",other
+16,Has the project already reduced maintenance-review time by 50%?,should_decline,,"Baseline reflection 4 and the later approved value hypothesis. Decline to claim measured improvement: maintenance-review baseline and follow-up observations have not been collected. The 50% reduction is a proposed target, and the explanatory phone call was not a separately timed complete review.",baseline
