@@ -1,5 +1,6 @@
 """Read-only Pasto pilot. Public deployment awaits IGAC reuse verification."""
 import logging
+import math
 import os
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -10,9 +11,18 @@ from dotenv import load_dotenv
 
 ORIGINAL_RUN = "20261109T062536Z-9fp_q80e"
 CACHE_SECONDS = 600
-FRESHNESS_HOURS = 24
+DEFAULT_FRESHNESS_HOURS = 24
 ALL_BLOCKS = "all"
 MISSING_BLOCK = "missing"
+
+
+def freshness_hours():
+    """Read configuration after dotenv loading; reject unsafe numeric values."""
+    try:
+        value = float(os.environ.get("FRESHNESS_HOURS", "24"))
+    except (TypeError, ValueError):
+        return DEFAULT_FRESHNESS_HOURS
+    return value if math.isfinite(value) and value > 0 else DEFAULT_FRESHNESS_HOURS
 
 
 @contextmanager
@@ -104,8 +114,9 @@ def freshness_banner(latest, displayed_snapshot, now=None):
         st.warning("The sync timestamp is inconsistent; freshness is unknown.")
         return
     message = f"Last successful GitHub sync check: {finished:%Y-%m-%d %H:%M} UTC ({age:.1f} hours ago)."
-    if age > FRESHNESS_HOURS:
-        st.warning("Sync check overdue (24-hour operational threshold). " + message)
+    threshold = freshness_hours()
+    if age > threshold:
+        st.warning(f"Sync check overdue ({threshold:g}-hour operational threshold). " + message)
     else:
         st.success(message)
     st.caption(f"Latest checked source release: {release}. A successful check does not establish current site conditions.")
@@ -132,7 +143,7 @@ def main():
     st.title("Pasto Property-Data Pilot")
     st.caption("Explore returned parcel–building coverage and construction categories.")
     about()
-    st.caption("Results cached for up to 10 minutes; refresh occurs on a page interaction or reload after expiry. Sync checks are scheduled every six hours; the 24-hour warning does not guarantee current source data.")
+    st.caption(f"Results cached for up to 10 minutes; refresh occurs on a page interaction or reload after expiry. Sync checks are scheduled every six hours; the {freshness_hours():g}-hour warning does not guarantee current source data.")
     if not os.environ.get("APP_DATABASE_URL"):
         st.info("Data is unavailable: the read-only database connection is not configured.")
         return

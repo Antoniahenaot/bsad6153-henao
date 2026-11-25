@@ -14,7 +14,7 @@ Used the existing Milestone 2 virtual environment, Python **3.12.10**, without i
 /Users/antoniahenao/BSAD6153/bsad6153-milestone-2/.venv/bin/python -B -m unittest discover -s tests -v
 ```
 
-The final run completed **26 tests: 26 passed, 0 failures, 0 errors**. This comprises 16 app tests and the 10 existing sync tests. All database connections were mocked or blocked. The app's dotenv loading was mocked in UI tests so tests did not read local credentials. Sync HTTP calls were mocked; the printed retry messages are simulated, not live API activity.
+The initial implementation's final run completed **26 tests: 26 passed, 0 failures, 0 errors**. This comprises 16 app tests and the 10 existing sync tests. All database connections were mocked or blocked. The app's dotenv loading was mocked in UI tests so tests did not read local credentials. Sync HTTP calls were mocked; the printed retry messages are simulated, not live API activity.
 
 AST syntax checks passed for `app/streamlit_app.py`, `tests/test_app.py`, and `tests/test_sync.py`. Whitespace checks covered the tracked diff and new documentation/test files.
 
@@ -115,3 +115,14 @@ The context query returned the latest qualifying successful GitHub-backed check 
 No discrepancies or connection/query failures occurred. Streamlit emitted its normal no-runtime cache warning because query functions were invoked outside the interactive UI. Credentials and raw connection errors were not displayed or saved in the evidence. A credential-free local result summary is retained at `/tmp/bsad_m4_verified_results.json`; it is outside the repository and may be removed by the operating system.
 
 Live UI behavior, deployed Render compatibility, full clean-start reproduction, peer review, and IGAC reuse/attribution resolution remain unverified or pending. No additional scheduled runs, ingestion, or write-permission tests were triggered.
+
+
+## Freshness configuration correction and latest offline tests
+
+The initial configuration claim that changing Render's FRESHNESS_HOURS would change the application threshold was incorrect at commit `990f0c2`: Render declared the variable, but the app hardcoded 24. With Antonia's approval, Codex changed the app to read the environment at runtime after dotenv loading. Positive finite numeric values are accepted; absent, blank, invalid, nonpositive, or nonfinite values fall back to 24 hours. The banner warning and page explanation both use the effective threshold. Render configuration was not changed by this correction.
+
+On **November 23, 2026**, Codex ran the same offline unittest-discovery command shown above using Python 3.12.10. The latest completed suite reported **28 passed, 0 failures, 0 errors**: 18 app tests and 10 existing sync tests. New tests verify that a six-hour configuration permits a check exactly six hours old, warns one second beyond it, and displays the configured value. They also verify missing/invalid settings, positive fractional values, and the 24-hour fallback. The existing 24-hour boundary tests passed. Python AST syntax checks and whitespace checks passed. These results were not rerun during the documentation-only update on November 25, 2026.
+
+Database connections and HTTP calls were mocked/blocked; UI dotenv loading was mocked. No live database, Render, or browser verification was performed for this correction. The earlier 26-test result and live Q02/Q03/Q05/block comparisons remain historical evidence above; the live SQL checks were not repeated and are not replaced by the 28-test result.
+
+On **November 25, 2026**, Antonia confirmed reviewing the provided Code Tour, supporting excerpts, configuration comparison, and reported results. The checked items in [code_tour.md](code_tour.md) record that excerpt-based review only. They do not claim she independently inspected every complete file or personally executed Codex's tests. Full-file personal review, actual browser/configuration verification, Render behavior, peer review, clean-start reproduction, and IGAC reuse resolution remain pending or unverified.

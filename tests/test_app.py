@@ -42,7 +42,7 @@ def connection(rows=None, role=True):
 class AppTests(unittest.TestCase):
     def setUp(self):
         app.st.cache_data.clear()
-        self.env = patch.dict(os.environ, {'APP_DATABASE_URL': 'offline-test-only'})
+        self.env = patch.dict(os.environ, {'APP_DATABASE_URL': 'offline-test-only', 'FRESHNESS_HOURS': '24'})
         self.env.start()
         self.guard = patch.object(psycopg, 'connect', side_effect=AssertionError('Unexpected connection'))
         self.guard.start()
@@ -150,6 +150,24 @@ class AppTests(unittest.TestCase):
             app.freshness_banner(None, 1, NOW)
             app.freshness_banner((NOW + timedelta(hours=1), 1, date(2026, 8, 31)), 1, NOW)
             self.assertEqual(warning.call_count, 4)
+
+    def test_configured_freshness_threshold_controls_banner(self):
+        with patch.dict(os.environ, {'FRESHNESS_HOURS': '6'}), patch.object(app.st, 'success') as success, patch.object(app.st, 'warning') as warning, patch.object(app.st, 'caption'):
+            app.freshness_banner((NOW - timedelta(hours=6), 1, date(2026, 8, 31)), 1, NOW)
+            success.assert_called_once()
+            warning.assert_not_called()
+            app.freshness_banner((NOW - timedelta(hours=6, seconds=1), 1, date(2026, 8, 31)), 1, NOW)
+            warning.assert_called_once()
+            self.assertIn('6-hour operational threshold', warning.call_args.args[0])
+
+    def test_freshness_config_defaults_and_rejects_invalid_values(self):
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(app.freshness_hours(), 24)
+        for value in ['', 'invalid', '0', '-1', 'NaN', 'Infinity', '-Infinity']:
+            with self.subTest(value=value), patch.dict(os.environ, {'FRESHNESS_HOURS': value}):
+                self.assertEqual(app.freshness_hours(), 24)
+        with patch.dict(os.environ, {'FRESHNESS_HOURS': '2.5'}):
+            self.assertEqual(app.freshness_hours(), 2.5)
 
     def run_ui(self, conn=None, failure=None, configured=True):
         app.st.cache_data.clear()
