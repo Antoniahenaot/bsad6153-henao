@@ -139,3 +139,55 @@ Codex reran the offline suite on **November 25, 2026** with the existing Python 
 Render's [Free documentation](https://render.com/docs/free), checked November 25, describes spin-down after 15 minutes without inbound traffic and approximately one minute to wake. Free usage limits and ephemeral local storage remain constraints. These are platform expectations, not measurements from this app. Caches are process-local; durable source records remain in Supabase.
 
 **Readiness:** suitable for a separately approved deployment attempt after branch/service selection, secure app_reader environment entry, free-plan limit/spending review, and personal review of the updated notices. No service was created or deployed. Actual dependency installation on Render, HTTPS/WebSocket operation, database connectivity from Render, browser display/filters/errors, and cold-start behavior remain unverified. Do not mark the public website, browser review, peer review, usage log, ungrounded evaluation, or clean-start reproduction complete based on this review.
+
+## Pre-deployment reader permission and TLS verification — November 25, 2026
+
+With Antonia's explicit approval, Codex used **only APP_DATABASE_URL** and confirmed both `current_user` and `session_user` were `app_reader`. The final diagnostic began at **2026-11-25 22:20:19.445000 UTC**. Short connection/statement timeouts (10 seconds) and lock timeout (3 seconds) were applied. Credentials, database addresses, and raw errors were not displayed or saved in this document.
+
+### TLS and Render connection configuration
+
+An earlier configuration check stopped before connecting because the URL did not explicitly require TLS. With separate approval, only the existing local reader URL's TLS option was corrected to `sslmode=require`; other credentials/connection details were preserved, with no downgrade of stronger settings. The local `.env` was verified ignored and untracked by Git. This does not prove earlier connections were unencrypted; it fixes the absence of an explicit requirement.
+
+The final check confirmed PostgreSQL URL format, the custom reader Session-pooler username format, Supabase Session-pooler port, IPv4 DNS resolution, explicit `sslmode=require`, and client-side TLS actually in use. No local certificate-file dependency was present. This connection approach is suitable for a Render deployment attempt, but it does not verify the URL has been entered correctly in Render or that Render's network can connect. `sslmode=require` enforces encryption; it is not a claim of full hostname/certificate verification equivalent to a correctly configured `verify-full` connection. No Render environment settings were inspected or changed.
+
+### Effective role and object privileges
+
+Metadata inspection found no superuser, CREATEDB, CREATEROLE, replication, or BYPASSRLS attributes; no memberships in other roles; no owned relations, schemas, or routines; no database CREATE or non-system schema CREATE privileges. The four approved IGAC relations are ordinary tables, not views providing indirect access.
+
+SELECT succeeded on all four approved tables. Observed counts during this session were **1 cadastral snapshot, 500 parcels, 1,218 buildings, and 30 sync_runs entries**. These are session-time observations, not replacements for earlier historical measurements.
+
+For each IGAC table, effective table-level INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, and TRIGGER privileges were absent. Column-level INSERT, UPDATE, and REFERENCES privileges were also absent. Checks included privileges inherited through PUBLIC rather than only direct grants.
+
+No usable non-system table/view privileges outside the four approved IGAC tables were found after accounting for schema USAGE. No non-system sequence privileges, accessible non-system executable routines (including SECURITY DEFINER routines), foreign-server USAGE, or foreign-data-wrapper USAGE were found. These checks address the inspected SQL access paths; they are not a claim of a comprehensive platform vulnerability audit.
+
+### Platform monitoring grants and corrected diagnostic
+
+The first broad diagnostic stopped because it counted object-level SELECT grants without considering schema access. A separately approved metadata-only investigation and corrected verification established:
+
+| Object | Extension | Grant source | Object privilege | app_reader schema USAGE |
+|---|---|---|---|---|
+| `extensions.pg_stat_statements` | `pg_stat_statements` | PUBLIC | SELECT only | Denied |
+| `extensions.pg_stat_statements_info` | `pg_stat_statements` | PUBLIC | SELECT only | Denied |
+
+These are extension-owned query-monitoring views, not unrelated business tables. No records from either view were read. The object ACLs remain in place, but ordinary named access through the extensions schema is blocked for this role. No grants were revoked and no platform settings were changed. `igac` USAGE is granted directly to app_reader; `public` USAGE is available through PUBLIC; both schemas deny CREATE. The metadata investigation also found no USAGE on auth, storage, realtime, vault, graphql, graphql_public, or pgbouncer.
+
+### Non-executing write-authorization evidence
+
+The diagnostic used an **ordinary transaction**, verified `transaction_read_only = off`, so write authorization was not merely denied by a read-only transaction setting. Only `EXPLAIN (ANALYZE FALSE)` was sent for the proposed data-changing statements. INSERT plans omitted generated identity columns; all test statements used `WHERE FALSE`. No INSERT, UPDATE, or DELETE statement was actually executed, no sequence function was called, and no TRUNCATE or DDL operation was attempted.
+
+Each check ran inside a savepoint and rolled back to it. The outer transaction was unconditionally rolled back in the cleanup path; its final state was verified IDLE before closing the connection.
+
+| Table | INSERT authorization SQLSTATE | UPDATE authorization SQLSTATE | DELETE authorization SQLSTATE |
+|---|---|---|---|
+| `igac.cadastral_snapshots` | 42501 | 42501 | 42501 |
+| `igac.parcels` | 42501 | 42501 | 42501 |
+| `igac.buildings` | 42501 | 42501 | 42501 |
+| `igac.sync_runs` | 42501 | 42501 | 42501 |
+
+**Outcome: all 12 authorization checks returned insufficient privilege (42501); final rollback succeeded.** No application records, permissions, or schema objects were changed. A credential-free local diagnostic summary is at `/tmp/bsad_reader_permission_results.json`, outside the repository; it is not a durable or committed evidence artifact.
+
+### Remaining limitations and deployment decision
+
+The shared PUBLIC TEMPORARY database privilege remains available, allowing temporary objects; this is not permission to write persistent IGAC tables. Standard system-catalog access remains available. No attempt was made to remove shared platform privileges. Permissions can change and should be reviewed again after role/grant changes. These checks establish current inspected privileges and authorization failures without executing actual writes; they do not test application behavior from Render, browser display, certificate hostname verification, or every possible extension/system-function behavior.
+
+The safe URL transfer to Render, an actual build/deployment, network connectivity from Render, updated-notice browser review, full clean-start reproduction, complete-file personal review, peer review, usage observations, and ungrounded baseline evaluation remain pending as previously documented. The national licensing-portal discrepancy remains unexplained. No deployment, Git commit/push, or merge was performed during these checks.
