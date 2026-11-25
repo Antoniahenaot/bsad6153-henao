@@ -4,7 +4,7 @@
 
 Local offline verification performed by Codex with Antonia's approval on November 23, 2026, on `milestone-4`. The website implements the approved [app specification](app_spec.md): original saved Pasto snapshot, parcel–building coverage, construction categories, shared parameterized block filter, and read-only access. Public chatbot and sign-in placeholders are removed; no AI API or database write feature was added.
 
-**The initial offline stage made no live database connection. The separately approved live read-only verification is recorded below. No ingestion, deployment, or database change was performed. Public deployment remains blocked until IGAC reuse and attribution terms are verified.**
+**The initial offline stage made no live database connection. The separately approved live read-only verification is recorded below. No ingestion, deployment, or database change was performed. The November 25 exact-source licensing finding and approved notice scope are recorded below; deployment still requires separate approval.**
 
 ## Environment and commands actually run
 
@@ -45,7 +45,8 @@ The first run had three failed assertions and one error in UI tests. Streamlit c
 
 - [x] Compared live read-only app results with golden Q02, Q03, and Q05 and equivalent SQL for one selected block; see measured evidence below.
 - [x] Verified live `app_reader` identity, read-only transaction mode, original snapshot identity, and latest qualifying sync metadata. Permission-denied tests were not repeated in this step; existing Milestone 3 permission evidence remains separate.
-- [ ] Resolve applicable IGAC terms: release metadata lists CC BY-SA 4.0 while the national listing lists CC BY 4.0. Confirm required attribution, links, and any ShareAlike obligations. Attribution text alone does not resolve this discrepancy.
+- [x] Exact-source CC BY-SA 4.0 evidence reviewed and Antonia approved licensing source data and data-derived presentations/adaptations accordingly; see data_license.md. The national-portal discrepancy remains unexplained.
+- [ ] Personally review and verify the updated attribution/license notices in an actual browser before approved deployment.
 - [ ] Verify Render runtime/build compatibility and deployed behavior after deployment approval.
 - [ ] Complete personal browser review, peer code review, and remaining assignment evidence. AppTest is not a visual browser or accessibility audit.
 
@@ -114,7 +115,7 @@ The context query returned the latest qualifying successful GitHub-backed check 
 
 No discrepancies or connection/query failures occurred. Streamlit emitted its normal no-runtime cache warning because query functions were invoked outside the interactive UI. Credentials and raw connection errors were not displayed or saved in the evidence. A credential-free local result summary is retained at `/tmp/bsad_m4_verified_results.json`; it is outside the repository and may be removed by the operating system.
 
-Live UI behavior, deployed Render compatibility, full clean-start reproduction, peer review, and IGAC reuse/attribution resolution remain unverified or pending. No additional scheduled runs, ingestion, or write-permission tests were triggered.
+Live UI behavior, deployed Render compatibility, full clean-start reproduction, peer review, remain unverified or pending. This historical statement predates the November 25 exact-source license verification below. No additional scheduled runs, ingestion, or write-permission tests were triggered.
 
 
 ## Freshness configuration correction and latest offline tests
@@ -125,4 +126,16 @@ On **November 23, 2026**, Codex ran the same offline unittest-discovery command 
 
 Database connections and HTTP calls were mocked/blocked; UI dotenv loading was mocked. No live database, Render, or browser verification was performed for this correction. The earlier 26-test result and live Q02/Q03/Q05/block comparisons remain historical evidence above; the live SQL checks were not repeated and are not replaced by the 28-test result.
 
-On **November 25, 2026**, Antonia confirmed reviewing the provided Code Tour, supporting excerpts, configuration comparison, and reported results. The checked items in [code_tour.md](code_tour.md) record that excerpt-based review only. They do not claim she independently inspected every complete file or personally executed Codex's tests. Full-file personal review, actual browser/configuration verification, Render behavior, peer review, clean-start reproduction, and IGAC reuse resolution remain pending or unverified.
+On **November 25, 2026**, Antonia confirmed reviewing the provided Code Tour, supporting excerpts, configuration comparison, and reported results. The checked items in [code_tour.md](code_tour.md) record that excerpt-based review only. They do not claim she independently inspected every complete file or personally executed Codex's tests. Full-file personal review, actual browser/configuration verification, Render behavior, peer review, clean-start reproduction, remain pending or unverified. Exact-source license evidence and the separately approved data-license scope are documented below; the portal discrepancy remains unexplained.
+
+## November 25 licensing and deployment-readiness review
+
+Antonia approved CC BY-SA 4.0 for IGAC source data and project data-derived adaptations/presentations. [data_license.md](data_license.md) records the exact service-to-item link, publisher licenseInfo, independent IGAC release metadata, attribution, and the unexplained national-portal label discrepancy. The app About section now displays source/evidence/license links, project changes, no-endorsement/warranty language, and the separate scope of independent application code. This is not a claim that the national portal discrepancy has been resolved. Existing personal-review checkboxes do not certify the newer notice or its browser appearance.
+
+Codex reran the offline suite on **November 25, 2026** with the existing Python 3.12.10 environment: **28 passed, 0 failures, 0 errors** (18 app tests, 10 sync tests). No database or HTTP ingestion calls were made; connections/calls were mocked or blocked as before. AST syntax checks passed for app and both test files. The prior live SQL evidence remains unchanged; no live database comparison was repeated. Whitespace checks passed for the changed/new files.
+
+`render.yaml` was reviewed but not changed: Python 3.12.10, Free web service, pinned requirements build, Streamlit binding to `$PORT`/`0.0.0.0`, private APP_DATABASE_URL, and FRESHNESS_HOURS=24. No owner/loader credentials, AI keys, or password feature are configured. Render's [Python-version documentation](https://render.com/docs/python-version), checked November 25, supports fully qualified released versions through PYTHON_VERSION. This is documentary compatibility evidence, not an actual successful build. A YAML parser was unavailable in the existing environment; no parser validation or new installation is claimed.
+
+Render's [Free documentation](https://render.com/docs/free), checked November 25, describes spin-down after 15 minutes without inbound traffic and approximately one minute to wake. Free usage limits and ephemeral local storage remain constraints. These are platform expectations, not measurements from this app. Caches are process-local; durable source records remain in Supabase.
+
+**Readiness:** suitable for a separately approved deployment attempt after branch/service selection, secure app_reader environment entry, free-plan limit/spending review, and personal review of the updated notices. No service was created or deployed. Actual dependency installation on Render, HTTPS/WebSocket operation, database connectivity from Render, browser display/filters/errors, and cold-start behavior remain unverified. Do not mark the public website, browser review, peer review, usage log, ungrounded evaluation, or clean-start reproduction complete based on this review.

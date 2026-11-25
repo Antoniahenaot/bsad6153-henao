@@ -36,10 +36,10 @@ The sample is not representative of all Pasto or Manizales. Missing building mat
 Missing snapshots, unavailable connections, and filters returning no records will produce clear messages rather than misleading zeros or technical tracebacks.
 
 **Definition of done**
-Both views and the parameterized filter work; results match reference SQL for the same snapshot and filter; freshness, empty, error, and wrong-role cases are tested; attribution and limitations are visible; no credentials are exposed. Public deployment follows a separate approval and reuse-terms review.
+Both views and the parameterized filter work; results match reference SQL for the same snapshot and filter; freshness, empty, error, and wrong-role cases are tested; attribution and limitations are visible; no credentials are exposed. Public deployment follows separate approval and verification that the approved data-license notices are present.
 
 **Connection to the baseline**
 This pilot supports the baseline questions about whether downloaded property data is useful as mapping context. It does not contain machine readings, service history, or maintenance intervals and cannot demonstrate maintenance improvements.
 
-**Unresolved public reuse and attribution**
-The applicable IGAC reuse terms remain unverified. Existing project documentation records CC BY-SA 4.0 in IGAC release metadata and CC BY 4.0 in the national listing. Confirm the terms for these exact layers, attribution and source/license links, and any ShareAlike obligations before public deployment. See the [documented source and licensing references](data_dictionary.md#ethical-use-and-attribution).
+**Data reuse and attribution**
+The exact IGAC service item's licenseInfo and corresponding release metadata identify CC BY-SA 4.0, verified November 25, 2026. Antonia approved this license for source data and project data-derived presentations/adaptations. Show source/creator credit, license/evidence links, project changes, and no-endorsement/warranty notices. This does not relicense independent application code or dependencies. The previously reported national-portal CC BY 4.0 discrepancy remains unexplained; it is not treated as an override. See [data-license evidence and attribution](data_license.md). No deployment has occurred or been authorized by this specification update.

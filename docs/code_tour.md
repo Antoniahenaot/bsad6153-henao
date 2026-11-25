@@ -91,11 +91,12 @@ Both cached functions use a **600-second TTL**. Snapshot and block arguments dis
 
 The page identifies IGAC, release, layers, and source link, and explains that unmatched parcels do not establish vacancy. Pasto data does not establish Manizales coverage or maintenance requirements.
 
-The licensing warning is informational, **not a technical deployment lock**. Public deployment still requires separate approval and verification of applicable reuse terms. Render's build/start commands are at `render.yaml`, lines **9–11**; no AI key/password is requested.
+The license notice is informational, **not a technical deployment lock**. The exact-source CC BY-SA 4.0 evidence and Antonia's November 25 licensing decision are documented in [data_license.md](data_license.md). The national-portal discrepancy remains unexplained. Public deployment still requires separate approval. Render's build/start commands are at `render.yaml`, lines **9–11**; no AI key/password is requested.
 
 **Personal verification**
 
-- [x] Correct based on the reviewed attribution excerpt — the code includes limitations and attribution messages; reuse terms remain unresolved and the warning is not a technical deployment lock. Actual browser rendering remains pending.
+- [x] Historical excerpt review — Antonia reviewed the earlier attribution/limitations excerpt and understood that its warning was not a technical deployment lock.
+- [ ] Review the November 25 updated attribution, license scope, evidence links, and actual browser rendering; these newer excerpts have not yet been personally verified.
 - [ ] Incorrect — my notes: __________
 
 ## 7. Configuration mismatch, correction, and verification
@@ -129,4 +130,9 @@ python -B -m unittest discover -s tests -v
 - [ ] Render environment delivery and deployed behavior.
 
 
-Earlier 26-test evidence and live Q02/Q03/Q05 comparisons remain historical evidence in docs/app_verification.md; this correction adds the 28-test offline result above. The live database comparisons were not repeated. Render deployment, full clean-start reproduction, complete browser/accessibility review, peer review, and IGAC reuse resolution remain pending or unverified. No machinery outcomes or time savings are claimed.
+Earlier 26-test evidence and live Q02/Q03/Q05 comparisons remain historical evidence in docs/app_verification.md; this correction adds the 28-test offline result above. The live database comparisons were not repeated. Render deployment, full clean-start reproduction, complete browser/accessibility review, and peer review remain pending or unverified. The exact-source CC BY-SA 4.0 finding is now documented; the national-portal discrepancy remains unexplained. No machinery outcomes or time savings are claimed.
+
+
+## November 25 licensing follow-up
+
+The About text at app lines 127–135 now credits IGAC, identifies source/license evidence, explains filtering and aggregation changes, and applies CC BY-SA 4.0 to data adaptations/presentations only. Independent application code and dependencies are outside that notice. Existing code line numbers are unchanged by this text-only About update. Antonia approved the licensing approach; this does not mark her personal inspection of the new text or its browser rendering complete.

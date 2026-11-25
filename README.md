@@ -76,7 +76,7 @@ every command before you approve it, and keep auto-approve off.
    (`render.yaml` describes the service.) Or create a **Web Service** by hand with:
    - Build command: `pip install -r requirements.txt`
    - Start command: `streamlit run app/streamlit_app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true`
-   - Environment variables: `PYTHON_VERSION=3.12.4`, `APP_DATABASE_URL`, and later your LLM key and `APP_PASSWORD`
+   - Environment variables: `PYTHON_VERSION=3.12.10`, `FRESHNESS_HOURS=24`, and private `APP_DATABASE_URL` for `app_reader`. No AI key, owner/loader URL, or password feature is needed for this milestone.
 3. Under **Settings &gt; Custom Domains**, add your domain, then add the DNS records Render shows you at your
    registrar. Ask your agent to explain each record before you add it. HTTPS turns on automatically.
 4. Free services sleep when idle and take about a minute to wake. Say so on your site.
@@ -251,8 +251,8 @@ the Supabase Dashboard. The scheduled workflow never applies migrations.
 
 Populate a new database only with approval, using the saved-run validation
 and import commands above or a separately approved download. Raw files are
-not included in a clone. Do not publish them while IGAC reuse terms remain
-unresolved. The live sync command is `python ingest/sync.py`; it makes API
+not included in a clone. Any separately approved publication must preserve
+the source/data-adaptation CC BY-SA 4.0 conditions; see [data licensing](docs/data_license.md). The live sync command is `python ingest/sync.py`; it makes API
 requests and writes source data and operational logs.
 
 #### Read-only quality checks and golden references
@@ -352,7 +352,13 @@ August 31, 2026 release. This project uses a subset for Pasto, Colombia,
 from `U_TERRENO` (urban land, layer 7) and `U_CONSTRUCCION` (urban buildings,
 layer 3). [IGAC service directory](https://services2.arcgis.com/RVvWzU3lgJISqdke/ArcGIS/rest/services/CATASTRO_PUBLICO_31082026/FeatureServer)
 
-IGAC's release metadata lists CC BY-SA 4.0, while Colombia's national
-open-data listing shows CC BY 4.0. The terms for these exact layers still
-need confirmation before the sample or a map is shared publicly.
-[Data dictionary and source references](docs/data_dictionary.md#ethical-use-and-attribution)
+The exact source service item explicitly states **CC BY-SA 4.0**, independently supported by IGAC release metadata, verified November 25, 2026. Antonia approved applying it to the source data and project data-derived presentations/adaptations. Filtering, relationships, counts, and charts are project changes; credit IGAC, link the source/license, indicate changes, preserve applicable notices, and do not imply endorsement. The national portal's previously reported CC BY 4.0 label remains an unexplained discrepancy, not a confirmed replacement license. This notice does not relicense independent application code or dependencies. [Evidence, attribution, and scope](docs/data_license.md).
+
+
+## Milestone 4 operating expectations
+
+The original Pasto snapshot remains historical. A **600-second (10-minute) cache TTL** reduces repeated database reads; snapshot/block arguments separate view entries. Expired results refresh on a later interaction or reload, not continuously in an idle browser. GitHub Actions on main schedules sync every **six hours** (`23 */6 * * *`); delays or failures are possible. `FRESHNESS_HOURS` controls the warning threshold with a safe default of **24 hours**, measuring the last qualifying GitHub-backed check rather than current source conditions.
+
+Render Free web services spin down after **15 minutes without inbound traffic** and normally take **about one minute** to wake on the next request. This is an expected cold start, not a guaranteed recovery time. Process-local caches do not survive restarts; persistent source records remain in Supabase. Free usage limits can suspend service, and free hosting is not a production availability guarantee. [Render Free documentation](https://render.com/docs/free), checked November 25, 2026.
+
+The blueprint uses Python 3.12.10, pinned dependencies, `$PORT`, and `0.0.0.0`. Render documents fully qualified released Python versions through `PYTHON_VERSION` ([runtime documentation](https://render.com/docs/python-version)). Configuration review is not a successful Render build. **No public deployment has occurred.** Before deployment, separately approve the target branch/service, configure only the app_reader connection privately, review free-plan spending/limits, and verify HTTPS, live UI, logs, and attribution. Do not expose setup or loader credentials to the website.

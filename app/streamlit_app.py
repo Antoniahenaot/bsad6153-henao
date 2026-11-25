@@ -1,4 +1,4 @@
-"""Read-only Pasto pilot. Public deployment awaits IGAC reuse verification."""
+"""Read-only Pasto pilot. IGAC data/output terms: CC BY-SA 4.0; deployment requires approval."""
 import logging
 import math
 import os
@@ -128,11 +128,11 @@ def about():
     st.info("Limited Pasto sample, not representative of all Pasto or Manizales. Missing building matches do not establish vacancy. Categories do not establish occupancy, safety, or machinery requirements.")
     st.caption("This pilot explores property-data usefulness as mapping context. It contains no machine readings, service history, or maintenance intervals and demonstrates no maintenance time savings.")
     st.markdown(
-        "**Source:** Instituto Geográfico Agustín Codazzi (IGAC), August 31, 2026 release; "
+        "**Data source:** Instituto Geográfico Agustín Codazzi (IGAC), *Base Catastral Pública del Gestor IGAC 08-2026*, cutoff August 31, 2026; copyright credit: IGAC. "
         "Pasto urban land (`U_TERRENO`, layer 7) and buildings (`U_CONSTRUCCION`, layer 3). "
-        "[IGAC source](https://services2.arcgis.com/RVvWzU3lgJISqdke/ArcGIS/rest/services/CATASTRO_PUBLICO_31082026/FeatureServer)."
+        "[Original service](https://services2.arcgis.com/RVvWzU3lgJISqdke/ArcGIS/rest/services/CATASTRO_PUBLICO_31082026/FeatureServer) · [Source license evidence](https://www.arcgis.com/sharing/rest/content/items/a55304e6ce4a47fb97f988ac321f1440?f=pjson) · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Project changes: Antonia Henao selected a limited Pasto sample, linked parcel/building records, and produced filtered tables, counts, and charts. Project adaptations of the licensed data and data-derived presentations are shared under CC BY-SA 4.0. This data notice does not license the independent application source code or dependencies. IGAC does not endorse this project; data is provided without warranties and the cutoff does not establish current conditions."
     )
-    st.warning("Public deployment blocked pending verification of IGAC reuse and attribution terms: release metadata lists CC BY-SA 4.0 while the national listing lists CC BY 4.0. No license resolution is claimed.")
+    st.caption("License checked November 25, 2026: the exact IGAC service item states CC BY-SA 4.0. The previously reported CC BY 4.0 national-portal discrepancy remains unexplained. Public deployment still requires separate approval.")
 
 
 def main():
