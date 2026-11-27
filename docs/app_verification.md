@@ -1,6 +1,6 @@
 # Milestone 4 App Verification
 
-**Current status, November 25, 2026:** Antonia reported successful Render deployment from `milestone-4` and personally verified the Safari results recorded in the final section below. Earlier no-deployment/pending statements are historical evidence from before that deployment. This is not the final main-branch deployment. Subsequent display corrections remain local and are not yet redeployed.
+**Current status, November 27, 2026:** the milestone-4 pilot automatically deployed commit `b12f9da`; Antonia personally verified the corrected website in Safari at approximately 04:52 EST (09:52 UTC). See the dated evidence below. Earlier no-deployment/local-only statements are historical. Final main-branch deployment remains pending.
 
 ## Scope and status
 
@@ -50,7 +50,8 @@ The first run had three failed assertions and one error in UI tests. Streamlit c
 - [x] Exact-source CC BY-SA 4.0 evidence reviewed and Antonia approved licensing source data and data-derived presentations/adaptations accordingly; see data_license.md. The national-portal discrepancy remains unexplained.
 - [x] Antonia reported visible attribution/license information in Safari on November 25; exhaustive source-link/legal-notice inspection is not claimed.
 - [x] Antonia reported a successful milestone-4 Render deployment and working Safari views/filter; this confirms the reported deployment, not a full clean-start test.
-- [ ] Verify later local display fixes after approved redeployment, remaining error/configuration cases, and final main-branch deployment.
+- [x] Antonia verified the deployed display corrections in Safari on November 27; see follow-up below.
+- [ ] Remaining error/configuration cases and final main-branch deployment.
 - [ ] Complete personal browser review, peer code review, and remaining assignment evidence. AppTest is not a visual browser or accessibility audit.
 
 The 24-hour threshold concerns pipeline activity, not current source conditions. Missing building matches do not establish vacancy. The historical Pasto sample does not establish Manizales coverage or machinery maintenance improvements. Private business records are outside this public pilot.
@@ -230,9 +231,50 @@ On **November 25, 2026**, Codex ran the existing offline unittest-discovery comm
 - [x] Antonia reported successful milestone-4 Render deployment and personally verified the listed Safari interactions, numbers, freshness display, and visible attribution/license information.
 - [x] README now identifies the public URL and milestone-4 deployment scope.
 - [x] Local chart/label/status corrections passed offline regression tests.
-- [ ] Approve, commit/push, and redeploy the local display corrections; they are not part of the website Antonia already reviewed.
-- [ ] Personally verify corrected chart baseline and label visibility in Safari after that redeployment, including relevant viewport sizes.
+- [x] Approved display corrections committed/pushed as b12f9da; Render automatic deployment succeeded November 27 (see follow-up).
+- [x] Antonia verified the zero chart baseline, untruncated metric label, and removed approval statement in Safari after deployment, November 27 at approximately 04:52 EST. Broader viewport testing is not claimed.
 - [ ] Verify final main-branch deployment after an approved merge; milestone-4 remains the deployed pilot branch.
-- [ ] Remaining error/configuration cases, full clean-start reproduction, full-file review, peer review, usage observations, ungrounded baseline evaluation, and screencast/submission evidence as applicable.
+- [ ] Remaining error/configuration cases, full clean-start reproduction, full-file review, peer review, and screencast/submission evidence. Parts E/F documentation is now recorded with limitations in the current checklist below.
 
 No database access, permission changes, commit, push, redeployment, or merge was performed in this correction step. The national licensing-portal discrepancy remains unexplained; CC BY-SA 4.0 applies to the approved IGAC data/adaptation/presentation scope, not automatically to independent application source code.
+
+
+## Antonia Safari follow-up — November 27, 2026
+
+**Browser verification reported by Antonia:** approximately **04:52 AM EST (09:52 UTC)** at [the public milestone-4 pilot](https://bsad6153-henao.onrender.com). Codex records her actual observations; no independent browser inspection, database query, or new test execution was performed in this documentation step.
+
+- The fourth metric displayed **No building match** without truncation.
+- The construction-category chart started at **zero**.
+- The outdated deployment-approval statement was absent.
+- IGAC attribution and licensing remained visible.
+- All six unfiltered counts remained correct: **500 parcels, 1,218 building records, 422 parcels with matches, 78 without returned matches, 995 conventional records, and 223 nonconventional records**.
+- The freshness banner showed the successful **November 27 check at 07:49 UTC**, approximately **two hours old** at review. The minute-level timestamp and age are reported as observed, not as a newly queried precise completion time or current age. This does not establish current source conditions.
+
+Codex's earlier read-only Render dashboard observation confirmed automatic deployment of `b12f9dac3b284a8271975df293c84623943dabd1`, displayed time November 27 at 04:48:49 EST, trigger Auto-Deploy, duration 55.1 seconds. Antonia's subsequent review establishes the three corrections were visible on the website. It does not independently associate a browser-exposed build identifier with the page, which does not display one.
+
+- [x] Antonia personally verified the three deployed display/status corrections and listed unfiltered values in Safari.
+- [ ] Final main-branch deployment after approved merge.
+- [ ] Broader viewport/accessibility tests, all error/configuration scenarios, full clean-start reproduction, complete-file review, peer review, and remaining submission evidence. Parts E/F evidence and missing measurements/settings are separated below.
+
+No new block-filtered observation, task duration, confidence score, business improvement, or time saving was supplied for this follow-up, so none is inferred. This browser verification is functional evidence, not automatically a Real Usage Log entry. Earlier dated SQL results and the 29-test offline result remain intact. The national-portal licensing discrepancy remains documented.
+
+
+## Current Milestone 4 evidence checklist — November 27, 2026
+
+This checklist supersedes pending statements in earlier dated sections without changing their historical measurements.
+
+- [x] Approved app specification, two views, parameterized block filter, read-only safeguards, caching, freshness, attribution, and documented limitations implemented.
+- [x] 29 offline tests passed; syntax and whitespace checks passed. Codex reran the offline suite during the November 27 documentation review; no live database connection was used for that run.
+- [x] Prior live SQL comparisons and reader permission/TLS evidence documented with their original timestamps and limits.
+- [x] Public milestone-4 pilot deployment, automatic deployment of b12f9da, and Antonia's November 25/27 Safari observations documented.
+- [x] Code Tour prepared; Antonia's supplied-excerpt review and specific Safari checks recorded without claiming complete-file inspection.
+- [x] Part E: two actual website uses recorded in [usage_log.md](usage_log.md), including the chart improvement identified through use. Antonia approved their accurate documentation.
+- [ ] Part E measurement fields: task durations and confidence ratings remain unrecorded; wished-for information was not supplied. If mandatory, obtain additional genuine timed observations or instructor guidance. Do not backfill invented measurements. No machinery-maintenance time saving is established.
+- [x] Part F: five exact user-supplied responses, IDs 1/3/5/6/9, four measured read-only SQL references, verdicts, and web-status fields recorded in [ungrounded_baseline.md](../evals/ungrounded_baseline.md). ChatGPT Temporary Chat confirmed; Antonia agreed with the verdicts.
+- [ ] Part F metadata: exact model version, experiment time, and web activity remain unrecorded; other context/prompt-order details and original export are not supplied. If required by the rubric, these remain incomplete. No settings or tool usage were inferred.
+- [ ] Peer code review and docs/peer_review.md, including feedback and responses.
+- [ ] Remaining complete-file personal review, broader browser/accessibility/error/configuration checks, and full clean-start reproduction. Do not confuse these with the completed excerpt/specific-browser checks.
+- [ ] Approved merge and final main-branch deployment/verification; currently the deployed pilot branch is milestone-4.
+- [ ] Milestone 4 screencast link and remaining Canvas submission requirements, including any applicable domain requirement not verified in this review.
+
+The national licensing-portal discrepancy remains unexplained. The exact publisher's CC BY-SA 4.0 statement and approved data/output scope remain documented. Earlier live measurements and user responses are preserved; no new SQL or usage measurements were generated while reconciling these checklists.

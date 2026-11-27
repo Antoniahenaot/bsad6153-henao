@@ -97,7 +97,8 @@ The license notice is informational, **not a technical deployment lock**. The ex
 
 - [x] Historical excerpt review — Antonia reviewed the earlier attribution/limitations excerpt and understood that its warning was not a technical deployment lock.
 - [x] Antonia reported seeing IGAC attribution and license information in Safari on the milestone-4 pilot, November 25.
-- [ ] Independently inspect every updated notice/source link and verify later local corrections in the redeployed website.
+- [x] Antonia verified the deployed chart, metric-label, status-text corrections and visible attribution in Safari on November 27.
+- [ ] Independently inspect every updated source/license link and complete broader unperformed review.
 - [ ] Incorrect — my notes: __________
 
 ## 7. Configuration mismatch, correction, and verification
@@ -128,10 +129,11 @@ python -B -m unittest discover -s tests -v
 
 - [ ] Independent inspection of every complete file.
 - [ ] Actual browser check of the configured threshold, page explanation, and banner.
-- [ ] Render environment delivery and deployed behavior.
+- [x] Pilot Render build and the specifically reported Safari behavior were verified; the approved correction reads the configured threshold in offline tests.
+- [ ] Complete additional Render/environment and error-case verification beyond the reported pilot checks.
 
 
-Earlier 26-test evidence and live Q02/Q03/Q05 comparisons remain historical evidence in docs/app_verification.md; this correction adds the 28-test offline result above. The live database comparisons were not repeated. Render deployment, full clean-start reproduction, complete browser/accessibility review, and peer review remain pending or unverified. The exact-source CC BY-SA 4.0 finding is now documented; the national-portal discrepancy remains unexplained. No machinery outcomes or time savings are claimed.
+Earlier 26-test evidence and live Q02/Q03/Q05 comparisons remain historical evidence in docs/app_verification.md; this correction adds the 28-test offline result above. The live database comparisons were not repeated. At the correction stage, deployment was pending; the later milestone-4 deployment and specific Safari checks are recorded below. Full clean-start reproduction, complete browser/accessibility review, final main deployment, and peer review remain pending or unverified. The exact-source CC BY-SA 4.0 finding is now documented; the national-portal discrepancy remains unexplained. No machinery outcomes or time savings are claimed.
 
 
 ## November 25 licensing follow-up
@@ -146,5 +148,10 @@ Antonia personally opened the milestone-4 Render pilot at https://bsad6153-henao
 Current app line **171** uses the shorter fourth metric label **No building match**; line **172** supplies help text explaining that it counts parcels without returned matches and vacancy remains unknown. Line **178** uses an explicit Vega-Lite quantitative scale with `zero: true` and `domainMin: 0`, so category bars start at zero. Line **135** replaces the obsolete deployment-approval statement with branch-deployment status while retaining the license discrepancy. These local changes have not been committed, pushed, or redeployed in this step.
 
 - [x] Antonia reported successfully reviewing the previously deployed pilot in Safari.
-- [ ] Browser verification of the local zero-baseline chart and shorter metric label after an approved redeployment.
+- [x] Antonia verified the deployed zero-baseline chart and untruncated No building match label in Safari on November 27 at approximately 04:52 EST; she also confirmed removal of the obsolete approval statement.
 - [ ] Verify final main-branch deployment after any approved merge.
+
+
+## November 27 personal browser follow-up
+
+Antonia reported verifying all three corrections on the public milestone-4 pilot at approximately 04:52 EST (09:52 UTC). All six unfiltered counts remained correct, attribution/licensing remained visible, and the banner showed the November 27 07:49 UTC sync check at approximately two hours old. This is her browser evidence, not Codex executing a browser or database test in this step. It does not complete full-file inspection, broader viewport/error/configuration verification, or final main deployment. See app_verification.md for the exact reported values.

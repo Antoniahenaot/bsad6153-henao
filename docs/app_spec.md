@@ -36,7 +36,7 @@ The sample is not representative of all Pasto or Manizales. Missing building mat
 Missing snapshots, unavailable connections, and filters returning no records will produce clear messages rather than misleading zeros or technical tracebacks.
 
 **Definition of done**
-Both views and the parameterized filter work; results match reference SQL for the same snapshot and filter; freshness, empty, error, and wrong-role cases are tested; attribution and limitations are visible; no credentials are exposed. Antonia verified the milestone-4 Render pilot in Safari on November 25, 2026. The final main-branch deployment and verification of later local display corrections remain pending.
+Both views and the parameterized filter work; results match reference SQL for the same snapshot and filter; freshness, empty, error, and wrong-role cases are tested; attribution and limitations are visible; no credentials are exposed. Antonia verified the milestone-4 Render pilot in Safari on November 25, 2026. Antonia verified the deployed chart/metric/status corrections in Safari on November 27 at approximately 04:52 EST. Final main-branch deployment and broader unperformed verification remain pending.
 
 **Connection to the baseline**
 This pilot supports the baseline questions about whether downloaded property data is useful as mapping context. It does not contain machine readings, service history, or maintenance intervals and cannot demonstrate maintenance improvements.
