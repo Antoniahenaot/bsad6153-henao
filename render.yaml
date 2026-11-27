@@ -11,12 +11,8 @@ services:
     startCommand: streamlit run app/streamlit_app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
     envVars:
       - key: PYTHON_VERSION
-        value: "3.12.4"
+        value: "3.12.10"
       - key: FRESHNESS_HOURS
         value: "24"
       - key: APP_DATABASE_URL
-        sync: false
-      - key: ANTHROPIC_API_KEY
-        sync: false
-      - key: APP_PASSWORD
         sync: false
