@@ -196,6 +196,16 @@ class AppTests(unittest.TestCase):
             at.selectbox[0].select(('missing', None)).run()
             self.assertFalse(at.exception)
 
+    def test_chart_zero_baseline_and_short_metric(self):
+        with patch.object(app.st, 'vega_lite_chart', wraps=app.st.vega_lite_chart) as chart:
+            at = self.run_ui(connection())
+            self.assertFalse(at.exception)
+            spec = chart.call_args.kwargs['spec']
+            self.assertEqual(spec['encoding']['y']['scale'], {'zero': True, 'domainMin': 0})
+            self.assertEqual(at.metric[3].label, 'No building match')
+            self.assertIn('vacancy is unknown', at.metric[3].help)
+            self.assertFalse(any('Public deployment still requires separate approval' in item.value for item in at.caption))
+
     def test_ui_connection_error_hides_details(self):
         at = self.run_ui(failure=psycopg.OperationalError('PRIVATE-CONNECTION-DETAIL'))
         self.assertFalse(at.exception)

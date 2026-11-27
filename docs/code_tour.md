@@ -1,6 +1,6 @@
 # Milestone 4 Code Tour
 
-Line numbers refer to the local Milestone 4 application after the freshness-configuration correction on November 23, 2026. They may move after future edits. Codex prepared this tour and performed the technical checks below with Antonia's approval. **Personal excerpt review recorded November 25, 2026:** Antonia reviewed the provided Code Tour, selected actual code excerpts, original/corrected configuration comparison, and reported test results. Checked items below record only her understanding of that supplied evidence. They do not claim independent inspection of every complete file, personal execution of tests, a live browser check, or verified Render behavior.
+Line numbers refer to the local Milestone 4 application including the November 25 display corrections; the single-line replacements did not shift the referenced locations. They may move after future edits. Codex prepared this tour and performed the technical checks below with Antonia's approval. **Personal excerpt review recorded November 25, 2026:** Antonia reviewed the provided Code Tour, selected actual code excerpts, original/corrected configuration comparison, and reported test results. Checked items below record only her understanding of that supplied evidence. They do not claim independent inspection of every complete file, personal execution of tests, a live browser check, or verified Render behavior.
 
 ## Purpose and file map
 
@@ -91,12 +91,13 @@ Both cached functions use a **600-second TTL**. Snapshot and block arguments dis
 
 The page identifies IGAC, release, layers, and source link, and explains that unmatched parcels do not establish vacancy. Pasto data does not establish Manizales coverage or maintenance requirements.
 
-The license notice is informational, **not a technical deployment lock**. The exact-source CC BY-SA 4.0 evidence and Antonia's November 25 licensing decision are documented in [data_license.md](data_license.md). The national-portal discrepancy remains unexplained. Public deployment still requires separate approval. Render's build/start commands are at `render.yaml`, lines **9–11**; no AI key/password is requested.
+The license notice is informational, **not a technical deployment lock**. The exact-source CC BY-SA 4.0 evidence and Antonia's November 25 licensing decision are documented in [data_license.md](data_license.md). The national-portal discrepancy remains unexplained. Antonia reported the milestone-4 deployment and Safari verification on November 25; final main-branch deployment remains pending. Render's build/start commands are at `render.yaml`, lines **9–11**; no AI key/password is requested.
 
 **Personal verification**
 
 - [x] Historical excerpt review — Antonia reviewed the earlier attribution/limitations excerpt and understood that its warning was not a technical deployment lock.
-- [ ] Review the November 25 updated attribution, license scope, evidence links, and actual browser rendering; these newer excerpts have not yet been personally verified.
+- [x] Antonia reported seeing IGAC attribution and license information in Safari on the milestone-4 pilot, November 25.
+- [ ] Independently inspect every updated notice/source link and verify later local corrections in the redeployed website.
 - [ ] Incorrect — my notes: __________
 
 ## 7. Configuration mismatch, correction, and verification
@@ -136,3 +137,14 @@ Earlier 26-test evidence and live Q02/Q03/Q05 comparisons remain historical evid
 ## November 25 licensing follow-up
 
 The About text at app lines 127–135 now credits IGAC, identifies source/license evidence, explains filtering and aggregation changes, and applies CC BY-SA 4.0 to data adaptations/presentations only. Independent application code and dependencies are outside that notice. Existing code line numbers are unchanged by this text-only About update. Antonia approved the licensing approach; this does not mark her personal inspection of the new text or its browser rendering complete.
+
+
+## November 25 Safari evidence and subsequent local display fixes
+
+Antonia personally opened the milestone-4 Render pilot at https://bsad6153-henao.onrender.com and verified both views, tables, charts, the block filter, visible attribution/license information, a sync age of approximately 3.1 hours, and the reported all-block/selected-block totals recorded in app_verification.md. Codex did not perform that browser review. This does not establish every error state, different freshness settings, Render environment inspection, or final main-branch deployment.
+
+Current app line **171** uses the shorter fourth metric label **No building match**; line **172** supplies help text explaining that it counts parcels without returned matches and vacancy remains unknown. Line **178** uses an explicit Vega-Lite quantitative scale with `zero: true` and `domainMin: 0`, so category bars start at zero. Line **135** replaces the obsolete deployment-approval statement with branch-deployment status while retaining the license discrepancy. These local changes have not been committed, pushed, or redeployed in this step.
+
+- [x] Antonia reported successfully reviewing the previously deployed pilot in Safari.
+- [ ] Browser verification of the local zero-baseline chart and shorter metric label after an approved redeployment.
+- [ ] Verify final main-branch deployment after any approved merge.

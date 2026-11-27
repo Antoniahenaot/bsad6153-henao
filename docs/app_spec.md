@@ -11,7 +11,7 @@ This read-only website helps the instructor, peer reviewers, and interested visi
 | Parcel–Building Coverage | How many parcels have building matches, and how many have no returned match? | SQL query 3; golden Q03 |
 | Construction Categories | Which construction categories appear, and how many records belong to each? | SQL query 5; golden Q05 |
 
-Coverage will show summary counts and a parcel-level table. Categories will show a count table and bar chart. Counts represent source records; repeated building codes will not be automatically removed.
+Coverage will show summary counts and a parcel-level table. Categories will show a count table and a bar chart with an explicit zero baseline. Counts represent source records; repeated building codes will not be automatically removed.
 
 **Snapshot and filter behavior**
 Both views will use the same explicitly identified snapshot. Initially, this will be the original saved pilot, matching Q02, Q03, and Q05. Historical snapshots will never be combined into one coverage total.
@@ -36,10 +36,10 @@ The sample is not representative of all Pasto or Manizales. Missing building mat
 Missing snapshots, unavailable connections, and filters returning no records will produce clear messages rather than misleading zeros or technical tracebacks.
 
 **Definition of done**
-Both views and the parameterized filter work; results match reference SQL for the same snapshot and filter; freshness, empty, error, and wrong-role cases are tested; attribution and limitations are visible; no credentials are exposed. Public deployment follows separate approval and verification that the approved data-license notices are present.
+Both views and the parameterized filter work; results match reference SQL for the same snapshot and filter; freshness, empty, error, and wrong-role cases are tested; attribution and limitations are visible; no credentials are exposed. Antonia verified the milestone-4 Render pilot in Safari on November 25, 2026. The final main-branch deployment and verification of later local display corrections remain pending.
 
 **Connection to the baseline**
 This pilot supports the baseline questions about whether downloaded property data is useful as mapping context. It does not contain machine readings, service history, or maintenance intervals and cannot demonstrate maintenance improvements.
 
 **Data reuse and attribution**
-The exact IGAC service item's licenseInfo and corresponding release metadata identify CC BY-SA 4.0, verified November 25, 2026. Antonia approved this license for source data and project data-derived presentations/adaptations. Show source/creator credit, license/evidence links, project changes, and no-endorsement/warranty notices. This does not relicense independent application code or dependencies. The previously reported national-portal CC BY 4.0 discrepancy remains unexplained; it is not treated as an override. See [data-license evidence and attribution](data_license.md). No deployment has occurred or been authorized by this specification update.
+The exact IGAC service item's licenseInfo and corresponding release metadata identify CC BY-SA 4.0, verified November 25, 2026. Antonia approved this license for source data and project data-derived presentations/adaptations. Show source/creator credit, license/evidence links, project changes, and no-endorsement/warranty notices. This does not relicense independent application code or dependencies. The previously reported national-portal CC BY 4.0 discrepancy remains unexplained; it is not treated as an override. See [data-license evidence and attribution](data_license.md). Antonia reported successful deployment from milestone-4 on November 25, 2026; this is not yet the final main-branch deployment.

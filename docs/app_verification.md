@@ -1,5 +1,7 @@
 # Milestone 4 App Verification
 
+**Current status, November 25, 2026:** Antonia reported successful Render deployment from `milestone-4` and personally verified the Safari results recorded in the final section below. Earlier no-deployment/pending statements are historical evidence from before that deployment. This is not the final main-branch deployment. Subsequent display corrections remain local and are not yet redeployed.
+
 ## Scope and status
 
 Local offline verification performed by Codex with Antonia's approval on November 23, 2026, on `milestone-4`. The website implements the approved [app specification](app_spec.md): original saved Pasto snapshot, parcel–building coverage, construction categories, shared parameterized block filter, and read-only access. Public chatbot and sign-in placeholders are removed; no AI API or database write feature was added.
@@ -46,8 +48,9 @@ The first run had three failed assertions and one error in UI tests. Streamlit c
 - [x] Compared live read-only app results with golden Q02, Q03, and Q05 and equivalent SQL for one selected block; see measured evidence below.
 - [x] Verified live `app_reader` identity, read-only transaction mode, original snapshot identity, and latest qualifying sync metadata. Permission-denied tests were not repeated in this step; existing Milestone 3 permission evidence remains separate.
 - [x] Exact-source CC BY-SA 4.0 evidence reviewed and Antonia approved licensing source data and data-derived presentations/adaptations accordingly; see data_license.md. The national-portal discrepancy remains unexplained.
-- [ ] Personally review and verify the updated attribution/license notices in an actual browser before approved deployment.
-- [ ] Verify Render runtime/build compatibility and deployed behavior after deployment approval.
+- [x] Antonia reported visible attribution/license information in Safari on November 25; exhaustive source-link/legal-notice inspection is not claimed.
+- [x] Antonia reported a successful milestone-4 Render deployment and working Safari views/filter; this confirms the reported deployment, not a full clean-start test.
+- [ ] Verify later local display fixes after approved redeployment, remaining error/configuration cases, and final main-branch deployment.
 - [ ] Complete personal browser review, peer code review, and remaining assignment evidence. AppTest is not a visual browser or accessibility audit.
 
 The 24-hour threshold concerns pipeline activity, not current source conditions. Missing building matches do not establish vacancy. The historical Pasto sample does not establish Manizales coverage or machinery maintenance improvements. Private business records are outside this public pilot.
@@ -191,3 +194,45 @@ Each check ran inside a savepoint and rolled back to it. The outer transaction w
 The shared PUBLIC TEMPORARY database privilege remains available, allowing temporary objects; this is not permission to write persistent IGAC tables. Standard system-catalog access remains available. No attempt was made to remove shared platform privileges. Permissions can change and should be reviewed again after role/grant changes. These checks establish current inspected privileges and authorization failures without executing actual writes; they do not test application behavior from Render, browser display, certificate hostname verification, or every possible extension/system-function behavior.
 
 The safe URL transfer to Render, an actual build/deployment, network connectivity from Render, updated-notice browser review, full clean-start reproduction, complete-file personal review, peer review, usage observations, and ungrounded baseline evaluation remain pending as previously documented. The national licensing-portal discrepancy remains unexplained. No deployment, Git commit/push, or merge was performed during these checks.
+
+
+## Antonia Safari verification and local display corrections — November 25, 2026
+
+**Source of evidence:** Antonia personally opened [the public website](https://bsad6153-henao.onrender.com) in Safari and reported the following. Codex is documenting her observations, not claiming an independent browser inspection, a new live database query, or access to Render logs. The deployment was from **milestone-4**, not the final main branch. The exact deployed commit/build ID and browser-check time were not supplied and are not invented.
+
+- Freshness banner showed the latest successful sync at approximately **3.1 hours old** at her review; this is a historical observation, not the current age or proof of current source conditions.
+- IGAC attribution and license information were visible.
+- Both views, tables, charts, and the shared block filter worked in her review.
+
+| Observed metric | All blocks | Block 52001010300000150 |
+|---|---:|---:|
+| Parcels | 500 | 35 |
+| Returned building records | 1,218 | 68 |
+| Parcels with matches | 422 | 27 |
+| Parcels without returned matches | 78 | 8 |
+| Conventional building records | 995 | 62 |
+| Nonconventional building records | 223 | 6 |
+
+These user-observed totals agree with the earlier approved live SQL evidence. No database measurements were rerun in this step. Unmatched parcels are not proven vacant; category counts are source records and do not establish occupancy, safety, or machinery maintenance needs.
+
+### Review findings and local corrections
+
+Antonia identified chart-baseline and metric-label presentation issues and an obsolete deployment-approval statement. Codex made these approved local fixes:
+
+1. Replaced the category chart call with an explicit Vega-Lite specification: quantitative y-scale `zero: true` and `domainMin: 0`. This fixes the zero baseline without changing category counts or requiring another package.
+2. Shortened the fourth metric to **No building match**, with help text: “Parcels without returned building matches; vacancy is unknown.”
+3. Replaced the obsolete deployment-approval caption with milestone-4 pilot deployment status, preserving IGAC attribution, license scope, source links, national-portal discrepancy, and data limitations.
+
+On **November 25, 2026**, Codex ran the existing offline unittest-discovery command again: **29 passed, 0 failures, 0 errors** (19 app tests and 10 sync tests). The added test checks the actual chart specification for a zero baseline, the shorter metric label/help, and removal of the old approval caption. Connections and HTTP calls were mocked/blocked; UI dotenv loading was mocked. Python AST syntax checks and whitespace checks passed. Earlier test results remain historical evidence, not failures or replacements of live comparisons.
+
+### What is and is not complete
+
+- [x] Antonia reported successful milestone-4 Render deployment and personally verified the listed Safari interactions, numbers, freshness display, and visible attribution/license information.
+- [x] README now identifies the public URL and milestone-4 deployment scope.
+- [x] Local chart/label/status corrections passed offline regression tests.
+- [ ] Approve, commit/push, and redeploy the local display corrections; they are not part of the website Antonia already reviewed.
+- [ ] Personally verify corrected chart baseline and label visibility in Safari after that redeployment, including relevant viewport sizes.
+- [ ] Verify final main-branch deployment after an approved merge; milestone-4 remains the deployed pilot branch.
+- [ ] Remaining error/configuration cases, full clean-start reproduction, full-file review, peer review, usage observations, ungrounded baseline evaluation, and screencast/submission evidence as applicable.
+
+No database access, permission changes, commit, push, redeployment, or merge was performed in this correction step. The national licensing-portal discrepancy remains unexplained; CC BY-SA 4.0 applies to the approved IGAC data/adaptation/presentation scope, not automatically to independent application source code.

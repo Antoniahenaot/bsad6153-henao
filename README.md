@@ -2,7 +2,7 @@
 
 **Student:** Antonia Henao  
 **My decision:** Which construction machines need maintenance this week based on their operating hours?  
-**Website:** &lt;your domain, from Week 4&gt;
+**Website:** [Pasto Property-Data Pilot](https://bsad6153-henao.onrender.com) — deployed from `milestone-4`, not yet the final `main` deployment.
 
 This repository is one complete AI system, built over eight weeks: a real API, synced on a schedule into a
 PostgreSQL database, shown on a public website, with a chatbot and an agent that answer and act from your
@@ -361,4 +361,4 @@ The original Pasto snapshot remains historical. A **600-second (10-minute) cache
 
 Render Free web services spin down after **15 minutes without inbound traffic** and normally take **about one minute** to wake on the next request. This is an expected cold start, not a guaranteed recovery time. Process-local caches do not survive restarts; persistent source records remain in Supabase. Free usage limits can suspend service, and free hosting is not a production availability guarantee. [Render Free documentation](https://render.com/docs/free), checked November 25, 2026.
 
-The blueprint uses Python 3.12.10, pinned dependencies, `$PORT`, and `0.0.0.0`. Render documents fully qualified released Python versions through `PYTHON_VERSION` ([runtime documentation](https://render.com/docs/python-version)). Configuration review is not a successful Render build. **No public deployment has occurred.** Before deployment, separately approve the target branch/service, configure only the app_reader connection privately, review free-plan spending/limits, and verify HTTPS, live UI, logs, and attribution. Do not expose setup or loader credentials to the website.
+The blueprint uses Python 3.12.10, pinned dependencies, `$PORT`, and `0.0.0.0`. Render documents fully qualified released Python versions through `PYTHON_VERSION` ([runtime documentation](https://render.com/docs/python-version)). Antonia reported a successful Render deployment from `milestone-4` on November 25, 2026, and personally checked the HTTPS website in Safari. Both views and the block filter displayed the verified totals; attribution/license information and an approximately 3.1-hour-old sync check were visible. See [browser evidence](docs/app_verification.md#antonia-safari-verification-and-local-display-corrections--november-25-2026). This is not the final `main`-branch deployment or a full clean-start reproduction. The zero-baseline chart and shorter metric-label corrections made after that review are local only until approved commit/push/redeployment. Do not expose setup or loader credentials to the website.

@@ -132,7 +132,7 @@ def about():
         "Pasto urban land (`U_TERRENO`, layer 7) and buildings (`U_CONSTRUCCION`, layer 3). "
         "[Original service](https://services2.arcgis.com/RVvWzU3lgJISqdke/ArcGIS/rest/services/CATASTRO_PUBLICO_31082026/FeatureServer) · [Source license evidence](https://www.arcgis.com/sharing/rest/content/items/a55304e6ce4a47fb97f988ac321f1440?f=pjson) · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Project changes: Antonia Henao selected a limited Pasto sample, linked parcel/building records, and produced filtered tables, counts, and charts. Project adaptations of the licensed data and data-derived presentations are shared under CC BY-SA 4.0. This data notice does not license the independent application source code or dependencies. IGAC does not endorse this project; data is provided without warranties and the cutoff does not establish current conditions."
     )
-    st.caption("License checked November 25, 2026: the exact IGAC service item states CC BY-SA 4.0. The previously reported CC BY 4.0 national-portal discrepancy remains unexplained. Public deployment still requires separate approval.")
+    st.caption("License checked November 25, 2026: the exact IGAC service item states CC BY-SA 4.0. The previously reported CC BY 4.0 national-portal discrepancy remains unexplained. Pilot deployed from milestone-4; this is not the final main-branch deployment.")
 
 
 def main():
@@ -168,14 +168,14 @@ def main():
         st.header("Parcel–Building Coverage")
         matched = sum(count > 0 for _, count in parcels)
         cols = st.columns(4)
-        for col, label, value in zip(cols, ["Parcels", "Returned building records", "Parcels with matches", "Parcels without returned matches"], [len(parcels), sum(n for _, n in parcels), matched, len(parcels) - matched]):
-            col.metric(label, value)
+        for col, label, value in zip(cols, ["Parcels", "Returned building records", "Parcels with matches", "No building match"], [len(parcels), sum(n for _, n in parcels), matched, len(parcels) - matched]):
+            col.metric(label, value, help="Parcels without returned building matches; vacancy is unknown." if label == "No building match" else None)
         st.dataframe([{"Parcel code": code, "Returned building records": count} for code, count in parcels], hide_index=True)
         st.caption("No returned building match does not mean a parcel is vacant.")
         st.header("Construction Categories")
         if categories:
             st.dataframe([{"Category": name, "Building records": count} for name, count in categories], hide_index=True)
-            st.bar_chart({"Category": [r[0] for r in categories], "Building records": [r[1] for r in categories]}, x="Category", y="Building records")
+            st.vega_lite_chart(spec={"data": {"values": [{"Category": name, "Building records": count} for name, count in categories]}, "mark": "bar", "encoding": {"x": {"field": "Category", "type": "nominal"}, "y": {"field": "Building records", "type": "quantitative", "scale": {"zero": True, "domainMin": 0}}}})
             st.caption("Distinct source records are preserved even when building codes repeat.")
         else:
             st.info("These parcels have no returned building records; no construction categories are available.")
